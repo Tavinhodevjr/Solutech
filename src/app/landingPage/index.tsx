@@ -21,21 +21,12 @@ export default function LandingPage() {
         <View style={styles.navContainer}>
           {/* Logo do projeto */}
           <Image
-            source={require('../../assets/images/coringa.png')}
+            source={require('../../assets/images/logoBranca.png')}
             style={styles.logo}
           />
           {/* Lista de links de navegação */}
           <View style={styles.navLinks}>
-            <TouchableOpacity>
-              <Text style={styles.navLinkText}>SOBRE NÓS</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={styles.navLinkText}>SERVIÇOS</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={styles.navLinkText}>CONTATOS</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
+             <TouchableOpacity>
               <Text style={styles.navLinkText}>CONECTAR</Text>
             </TouchableOpacity>
             <TouchableOpacity>
@@ -49,32 +40,26 @@ export default function LandingPage() {
       {/* Bloco “SOBE NÓS” que apresenta a mensagem de boas-vindas e informações sobre a empresa */}
       <View style={styles.aboutSection}>
         <Text style={styles.welcomeText}>
-          SEJA BEM-VINDO A SUA NOVA FERRAMENTA PARA GESTÃO DE RESÍDUOS
+          SEJA BEM-VINDO A SOLUTECH!
         </Text>
 
         {/* Container com fundo azul (simulado com a cor secundária da paleta) */}
         <View style={styles.blueContainer}>
           <View style={styles.blueContent}>
             {/* Imagem do logo (apenas um exemplo, usa a imagem coringa) */}
-            <Image
-              source={require('../../assets/images/coringa.png')}
-              style={styles.aboutLogo}
-            />
+            <Text style={styles.transformText}>VALORES</Text>
             {/* Texto que convida para transformação */}
             <Text style={styles.readyText}>
-              ESTAMOS PRONTOS PARA TRANSFORMAR DESAFIOS EM OPORTUNIDADES E AJUDAR
-              EMPRESAS A ADOTAREM PRÁTICAS RESPONSÁVEIS E SUSTENTÁVEIS. JUNTE-SE A NÓS NA
-              BUSCA DE UM FUTURO MELHOR.
+            Estamos prontos para transformar desafios em oportunidades e ajudar empresas a adotarem práticas responsáveis e sustentáveis. Junte-se a nós na construção de um futuro melhor
             </Text>
             {/* Imagem de lixos variados – aqui usando a coringa */}
             <Image
-              source={require('../../assets/images/coringa.png')}
+              source={require('../../assets/images/transformarCuidar.png')}
               style={styles.wasteImage}
             />
             {/* Texto com destaque “TRANSFORMAR PARA CUIDAR” */}
-            <Text style={styles.transformText}>TRANSFORMAR PARA CUIDAR</Text>
+            <Text style={styles.transformText}>SOBRE NÓS</Text>
             {/* Cabeçalho “SOBRE NÓS” */}
-            <Text style={styles.aboutHeader}>SOBRE NÓS</Text>
             {/* Descrição detalhada sobre a empresa */}
             <Text style={styles.aboutDescription}>
               Somos uma empresa especializada em soluções de gerenciamento de resíduos,
@@ -96,12 +81,12 @@ export default function LandingPage() {
       {/* ========================= Services Section ========================= */}
       {/* Seção que apresenta os serviços principais em “cards” */}
       <View style={styles.servicesSection}>
-        <Text style={styles.servicesHeader}>PRINCIPAIS SERVIÇOS</Text>
+        <Text style={styles.servicesHeader}>O QUE PROMOVEMOS?</Text>
         
         {/* ----- Card 1: Economia Circular ----- */}
         <View style={styles.card}>
           <Image
-            source={require('../../assets/images/coringa.png')}
+            source={require('../../assets/images/economiaCircular.png')}
             style={styles.cardImage}
           />
           <Text style={styles.cardNumber}>01</Text>
@@ -116,7 +101,7 @@ export default function LandingPage() {
         {/* ----- Card 2: Transporte e Coleta ----- */}
         <View style={styles.card}>
           <Image
-            source={require('../../assets/images/coringa.png')}
+            source={require('../../assets/images/caminhao.png')}
             style={styles.cardImage}
           />
           <Text style={styles.cardNumber}>02</Text>
@@ -131,7 +116,7 @@ export default function LandingPage() {
         {/* ----- Card 3: Conectar Parceiros ----- */}
         <View style={styles.card}>
           <Image
-            source={require('../../assets/images/coringa.png')}
+            source={require('../../assets/images/parceiros.png')}
             style={styles.cardImage}
           />
           <Text style={styles.cardNumber}>03</Text>
@@ -147,10 +132,11 @@ export default function LandingPage() {
         {/* ----- Card 4: Gestão de Resíduos ----- */}
         <View style={styles.card}>
           <Image
-            source={require('../../assets/images/coringa.png')}
+            source={require('../../assets/images/gestaoResiduos.png')}
             style={styles.cardImage}
           />
           <Text style={styles.cardNumber}>04</Text>
+          <Text style={styles.cardTitle}>GESTÃO DE RESÍDUOS</Text>
           <Text style={styles.cardDescription}>
             A gestão de resíduos empresariais envolve a coleta, tratamento e descarte adequados dos
             resíduos, garantindo conformidade com as leis ambientais e práticas como reciclagem e
@@ -192,7 +178,7 @@ export default function LandingPage() {
       <View style={styles.footer}>
         <View style={styles.footerContainer}>
           <Image
-            source={require('../../assets/images/coringa.png')}
+            source={require('../../assets/images/logoTransparenteBranca.png')}
             style={styles.footerLogo}
           />
           {/* Coluna com links */}
@@ -206,13 +192,13 @@ export default function LandingPage() {
           {/* Coluna com informações de contato */}
           <View style={styles.footerColumn}>
             <Text style={styles.footerTitle}>Contato</Text>
-            <Text style={styles.footerLink}>Envie um e-mail para nós</Text>
-            <Text style={styles.footerLink}>ecomolk@gmail.com</Text>
+            <Text style={styles.footerLink}>Envie um e-mail para</Text>
+            <Text style={styles.footerLink}>solutech@gmail.com</Text>
           </View>
         </View>
         <View style={styles.footerBottom}>
           <Text style={styles.footerCopyright}>
-            &copy; 2024 EcoMolk. Todos os direitos reservados.
+            &copy; 2025 Solutech © Todos os direitos reservados.
           </Text>
         </View>
       </View>

@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: 20,
+    marginHorizontal: 25,
   },
   logo: {
     width: 90,
@@ -27,8 +27,8 @@ export const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   navLinks: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection:'row',
+    alignItems: 'stretch'
   },
   navLinkText: {
     marginHorizontal: 10,
@@ -48,10 +48,11 @@ export const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   blueContainer: {
-    backgroundColor: colors.secondary, // Utiliza a cor secundária para o fundo azul
+    backgroundColor: colors.primary, // Utiliza a cor principal para o fundo verde
     borderRadius: 8,
     padding: 20,
     marginVertical: 20,
+    elevation: 3,
   },
   blueContent: {
     alignItems: 'center',
@@ -63,9 +64,9 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   readyText: {
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 20,
+    textAlign: 'justify',
+    fontWeight: 'thin',
+    fontSize: 16,
     color: '#FFFFFF', // Cor branca para contraste
     marginBottom: 20,
   },
@@ -74,6 +75,7 @@ export const styles = StyleSheet.create({
     height: 150,
     resizeMode: 'contain',
     marginVertical: 20,
+    borderRadius: 8
   },
   transformText: {
     textAlign: 'center',
@@ -90,10 +92,10 @@ export const styles = StyleSheet.create({
     marginVertical: 10,
   },
   aboutDescription: {
-    textAlign: 'center',
+    textAlign: 'justify',
     fontSize: 16,
-    color: colors.textSecondary,
-    marginVertical: 10,
+    color: colors.neutral,
+    marginVertical: 0,
   },
   /* ========================= Services Section Styles ========================= */
   servicesSection: {
@@ -114,14 +116,15 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 15,
     marginBottom: 20,
-    elevation: 2,
+    elevation: 3,
   },
   cardImage: {
-    width: 80,
-    height: 80,
+    width: 250,
+    height: 250,
     resizeMode: 'contain',
     alignSelf: 'center',
     marginBottom: 10,
+    borderRadius: 8
   },
   cardNumber: {
     textAlign: 'center',
@@ -138,7 +141,7 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   cardDescription: {
-    textAlign: 'center',
+    textAlign: 'justify',
     fontSize: 14,
     color: colors.textSecondary,
   },
@@ -208,13 +211,13 @@ export const styles = StyleSheet.create({
   },
   footerTitle: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     marginBottom: 5,
   },
   footerLink: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 10,
     marginBottom: 3,
   },
   footerBottom: {
