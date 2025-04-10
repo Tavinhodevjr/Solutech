@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
 export const styles = StyleSheet.create({
-  // Container principal com rolagem (centralizado verticalmente)
+  // Container principal que centraliza o conteúdo e define o fundo
   container: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -11,14 +11,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: 20,
   },
-  // Estilização da logo (imagem centralizada no topo)
-  logo: {
-    width: 200,
-    height: 200,
-    resizeMode: 'contain',
-    marginBottom: 20,
-  },
-  // Container do formulário de login (inputs e botão)
+  // Container do formulário de cadastro
   formContainer: {
     width: '100%',
     backgroundColor: colors.neutral,
@@ -26,62 +19,47 @@ export const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
   },
-  // Cabeçalho do formulário
+  // Título do formulário
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.primary,
     marginBottom: 20,
   },
-  // Container para cada campo de input
+  // Container para cada campo de entrada
   inputField: {
     width: '100%',
     marginBottom: 15,
   },
-  // Estilo do label acima do input
+  // Estilo dos labels acima dos inputs
   label: {
     fontSize: 16,
     fontWeight: '500',
     color: colors.primary,
     marginBottom: 5,
   },
-  // Estilos para os inputs
+  // Estilo dos inputs (fundo branco para contraste)
   input: {
     width: '100%',
     borderWidth: 1,
     borderColor: colors.neutral,
     borderRadius: 4,
     padding: 10,
-    // Define o fundo branco para contraste com o container do formulário
     backgroundColor: colors.background,
   },
-  // Estilo do botão de login
+  // Estilo do botão de envio
   button: {
     backgroundColor: colors.primary,
     padding: 15,
     borderRadius: 4,
     alignItems: 'center',
     width: '100%',
-    marginBottom: 20,
+    marginTop: 10,
   },
-  // Estilo do texto do botão
+  // Estilo do texto no botão
   buttonText: {
     color: colors.background,
     fontWeight: 'bold',
     fontSize: 16,
-  },
-  // Container para a área de "Cadastre" (link para cadastro)
-  signin: {
-    marginTop: 10,
-  },
-  // Estilo do texto complementar
-  signinText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  // Estilo para o link (solicitação de cadastro)
-  linkText: {
-    color: colors.secondary,
-    textDecorationLine: 'underline',
   },
 });
