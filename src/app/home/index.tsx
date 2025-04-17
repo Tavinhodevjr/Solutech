@@ -76,11 +76,11 @@ const Home = () => {
           <Text style={styles.menuButtonText}>Cadastrar Itens</Text>
         </TouchableOpacity>
         {/* Botão para navegar para a tela de "Meus Itens" */}
-        <TouchableOpacity onPress={() => router.push('/addItem')} style={styles.menuButton}>
+        <TouchableOpacity onPress={() => router.push('/myItens')} style={styles.menuButton}>
           <Text style={styles.menuButtonText}>Meus Itens</Text>
         </TouchableOpacity>
         {/* Botão para navegar para a tela de "Dashboard Geral" */}
-        <TouchableOpacity onPress={() => router.push('/addItem')} style={styles.menuButton}>
+        <TouchableOpacity onPress={() => router.push('/dashboard')} style={styles.menuButton}>
           <Text style={styles.menuButtonText}>Dashboard Geral</Text>
         </TouchableOpacity>
         {/* Botão de Logout */}

@@ -8,9 +8,11 @@ import {
   TextInput,
 } from 'react-native';
 import { styles } from './styles';
+import { useRouter } from 'expo-router';
 
 // Componente funcional representando a Landing Page
 export default function LandingPage() {
+  const router = useRouter();
   return (
     // ScrollView para permitir a rolagem caso o conteúdo ultrapasse a altura da tela
     <ScrollView style={styles.container}>
@@ -26,10 +28,10 @@ export default function LandingPage() {
           />
           {/* Lista de links de navegação */}
           <View style={styles.navLinks}>
-             <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/registerPage')}>
               <Text style={styles.navLinkText}>CONECTAR</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/login')}>
               <Text style={styles.navLinkText}>LOGIN</Text>
             </TouchableOpacity>
           </View>
@@ -198,7 +200,7 @@ export default function LandingPage() {
         </View>
         <View style={styles.footerBottom}>
           <Text style={styles.footerCopyright}>
-            &copy; 2025 Solutech © Todos os direitos reservados.
+            &copy; 2025 Solutech - Todos os direitos reservados
           </Text>
         </View>
       </View>

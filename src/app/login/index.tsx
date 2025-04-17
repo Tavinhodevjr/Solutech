@@ -1,4 +1,5 @@
-import React from 'react';
+// src/app/login/index.tsx
+import React, { useState } from 'react';
 import {
   ScrollView,
   View,
@@ -6,69 +7,100 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
-// Importa os estilos para a tela de login
-import { styles } from './styles';
-// Importa o hook para navegação do Expo Router
 import { useRouter } from 'expo-router';
+import { styles } from './styles';
+import { authenticateUser } from '../../config/database'; // ← import da função de autenticação
 
 export default function Login() {
   const router = useRouter();
 
-  // Função para tratar o clique no botão de login
-  const handleLogin = () => {
-    // Aqui você pode implementar a lógica de autenticação.
-    // Se o login for bem-sucedido, redirecione para outra tela.
-    console.log('Login efetuado');
+  // Estados para os campos de e-mail e senha
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+  // Função chamada ao clicar no botão Entrar
+  const handleLogin = async () => {
+    // 1. Verifica se ambos os campos foram preenchidos
+    if (!email || !senha) {
+      Alert.alert('Erro', 'Por favor, preencha e-mail e senha.');
+      return;
+    }
+
+    // 2. Tenta autenticar usuário
+    const isValid = await authenticateUser(email, senha);
+
+    if (isValid) {
+      // 3.a. Autenticação bem‑sucedida: mostra mensagem e redireciona à Home
+      Alert.alert(
+        'Sucesso',
+        'Login efetuado com sucesso!',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.push('/home'),
+          },
+        ],
+        { cancelable: false }
+      );
+    } else {
+      // 3.b. Credenciais inválidas: alerta de erro e permanece na tela
+      Alert.alert('Erro', 'Usuário não cadastrado ou dados incorretos.');
+    }
   };
 
   return (
-    // ScrollView com container para centralizar os elementos
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Logo centralizada na parte superior */}
+      {/* Logo no topo */}
       <Image
         source={require('../../assets/images/logoBranca.png')}
         style={styles.logo}
       />
 
-      {/* Container para a área de login com os inputs e botão */}
       <View style={styles.formContainer}>
-        {/* Cabeçalho da tela */}
         <Text style={styles.header}>ENTRE NA SUA CONTA</Text>
 
-        {/* Campo para o email com label */}
+        {/* Campo de E-mail */}
         <View style={styles.inputField}>
-          {/* Label para E-mail */}
           <Text style={styles.label}>E-mail</Text>
           <TextInput
             placeholder="Digite seu e-mail"
             style={styles.input}
             autoCapitalize="none"
             keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
-        {/* Campo para a senha com label */}
+        {/* Campo de Senha */}
         <View style={styles.inputField}>
-          {/* Label para Senha */}
           <Text style={styles.label}>Senha</Text>
           <TextInput
             placeholder="Digite sua senha"
             style={styles.input}
             secureTextEntry
+            value={senha}
+            onChangeText={setSenha}
           />
         </View>
 
-        {/* Botão de Entrar */}
+        {/* Botão Entrar */}
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
 
-        {/* Link para cadastro */}
+        {/* Link para cadastro, caso não tenha conta */}
         <View style={styles.signin}>
           <Text style={styles.signinText}>
             Não tem uma conta?
-            <Text style={styles.linkText}> Cadastre</Text>
+            <Text
+              style={styles.linkText}
+              onPress={() => router.push('/registerPage')}
+            >
+              {' '}Cadastre
+            </Text>
           </Text>
         </View>
       </View>

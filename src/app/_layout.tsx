@@ -19,6 +19,12 @@ export default function Layout() {
       
       {/* Tela principal (Home) */}
       <Stack.Screen name="home/index" options={{ headerShown: false }} />
+
+      {/* Tela de métricas (Dashborad) */}
+      <Stack.Screen name="dashboard/index" options={{ headerShown: false }} />
+
+      {/* Tela ds meus itens (myItens) */}
+      <Stack.Screen name="myItens/index" options={{ headerShown: false }} />
     </Stack>
   );
 }

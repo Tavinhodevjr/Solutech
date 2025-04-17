@@ -44,7 +44,7 @@ solutech-app/
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/solutech-app.git
+git clone https://github.com/Tavinhodevjr/Solutech.git
 ```
 
 2. Instale as dependências:
