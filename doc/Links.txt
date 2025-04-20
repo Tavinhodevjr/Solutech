@@ -1,0 +1,13 @@
+Envio AC2 - Projeto Solutech - Grupo SquadGreen (Grupo 11)
+
+Professor, todos os arquivos do projeto estão no GitHub, na pasta documentação, são eles:
+
+1. Apresentação em slides do Projeto;
+2. Documentação completa do projeto com a parte teórica e pesquisa;
+3. Telas em PDF do Figma desenvolvido até o momento;
+4. Banner do projeto em PDF;
+5. Protótipo em si, no arquivo/seção READ.ME é possível observar um passo a passo para iniciar o projeto.
+
+GitHub: https://github.com/Tavinhodevjr/Solutech
+Figma:  https://www.figma.com/design/7T8dRO0HruryPdRHYGiNHT/Untitled?node-id=34-65&p=f&t=AfdIhOuj7SXlW3hR-0
+Trello: https://trello.com/b/fFwlmf27/upx-v
