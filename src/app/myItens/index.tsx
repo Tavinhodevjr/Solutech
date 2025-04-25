@@ -1,87 +1,107 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { styles } from './styles';
+import {
+  Item,
+  getItemsByUser,
+  removeItemById,
+} from '../../config/database';
 
-// Define a interface para representar os itens cadastrados
-interface Item {
-  id: string;
-  tipoResiduo: string;
-  descricao: string;
-  quantidade: string;
-  formaDescarte: string;
-  tipoEntrega: string;
-}
-
-const MyItens = () => {
-  // Estado com dados estáticos para visualização; futuramente, você integrará com os dados reais do back end
-  const [items, setItems] = useState<Item[]>([
-    {
-      id: '1',
-      tipoResiduo: 'Papel',
-      descricao: 'Papelão reciclável de escritório',
-      quantidade: '80',
-      formaDescarte: 'Reciclagem',
-      tipoEntrega: 'Troca',
-    },
-    {
-      id: '2',
-      tipoResiduo: 'Metal',
-      descricao: 'Sucata metálica',
-      quantidade: '30',
-      formaDescarte: 'Descarte',
-      tipoEntrega: 'Venda',
-    },
-  ]);
-
+export default function MyItens() {
   const router = useRouter();
 
-  // FUNÇÃO: Para tratar o clique no botão de editar item  
-  // Aqui você implementará a lógica para editar o item selecionado
-  const handleEdit = (itemId: string) => {
-    console.log(`Editar item ${itemId}`);
-    // Exemplo: router.push(`/editItem/${itemId}`);
+  // Estado para armazenar os itens do usuário logado
+  const [items, setItems] = useState<Item[]>([]);
+
+  // Carrega os itens do usuário quando a tela monta ou após exclusão
+  const loadItems = async () => {
+    try {
+      const userItems = await getItemsByUser();
+      setItems(userItems);
+    } catch (error) {
+      console.error('Erro ao carregar itens:', error);
+    }
   };
 
-  // FUNÇÃO: Para tratar o clique no botão de excluir item  
-  // Aqui você implementará a lógica para excluir o item selecionado, com confirmação se necessário
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  // Redireciona para a tela de edição, passando o ID como parâmetro de query
+  const handleEdit = (itemId: string) => {
+    router.push(`/editItens?id=${itemId}`);
+  };
+
+  // Exibe confirmação e exclui item se confirmado
   const handleDelete = (itemId: string) => {
-    console.log(`Excluir item ${itemId}`);
-    // Futuro: Implementar confirmação e exclusão do item
+    Alert.alert(
+      'Confirmar Exclusão',
+      'Deseja realmente excluir este item?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Confirmar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await removeItemById(itemId);
+              await loadItems(); // Recarrega lista após exclusão
+            } catch (error) {
+              Alert.alert('Erro', 'Não foi possível excluir o item.');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
-    // CONTAINER PRINCIPAL DA TELA "MY ITENS"
     <View style={styles.container}>
-      {/* Cabeçalho da tela */}
+      {/* Cabeçalho */}
       <Text style={styles.header}>Meus Itens</Text>
-      
-      {/* LISTA DE CARDS DOS ITENS */}
+
+      {/* Lista de itens do usuário */}
       {items.length > 0 ? (
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            // Cada card é estruturado em duas partes:
-            // 1. Conteúdo do item (lado esquerdo)
-            // 2. Ações: botões para editar e excluir (lado direito)
             <View style={styles.card}>
+              {/* Conteúdo do Card */}
               <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
                 <Text style={styles.cardDescription}>{item.descricao}</Text>
                 <Text style={styles.cardInfo}>Quantidade: {item.quantidade}</Text>
-                <Text style={styles.cardInfo}>Forma de Descarte: {item.formaDescarte}</Text>
-                <Text style={styles.cardInfo}>Tipo de Entrega: {item.tipoEntrega}</Text>
+                <Text style={styles.cardInfo}>
+                  Unidade: {item.unidadeMedida}
+                </Text>
+                <Text style={styles.cardInfo}>
+                  Negociação: {item.tipoNegociacao}
+                </Text>
               </View>
-              
-              {/* AREA DAS AÇÕES: Botões de Editar e Excluir */}
+
+              {/* Botões de Ação */}
               <View style={styles.cardActions}>
-                <TouchableOpacity onPress={() => handleEdit(item.id)} style={styles.actionButton}>
-                  {/* Ícone de lápis para Editar (pode ser substituído por um ícone de biblioteca no futuro) */}
+                {/* Editar */}
+                <TouchableOpacity
+                  onPress={() => handleEdit(item.id)}
+                  style={styles.actionButton}
+                >
                   <Text style={styles.actionText}>✏️</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.actionButton}>
-                  {/* Ícone de lixeira para Excluir */}
+                {/* Excluir */}
+                <TouchableOpacity
+                  onPress={() => handleDelete(item.id)}
+                  style={styles.actionButton}
+                >
                   <Text style={styles.actionText}>🗑️</Text>
                 </TouchableOpacity>
               </View>
@@ -89,13 +109,11 @@ const MyItens = () => {
           )}
         />
       ) : (
-        // MENSAGEM EXIBIDA QUANDO NÃO HOUVER ITENS CADASTRADOS
+        // Mensagem caso não haja itens cadastrados
         <Text style={styles.emptyMessage}>
           Você ainda não cadastrou nenhum item.
         </Text>
       )}
     </View>
   );
-};
-
-export default MyItens;
+}

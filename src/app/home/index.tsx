@@ -1,54 +1,47 @@
-import React, { useState } from 'react';
+// src/app/home/index.tsx
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   FlatList,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { styles } from './styles';
+import {
+  getItemsByOthers,
+  removeCurrentUser,
+  Item,
+} from '../../config/database';
 
-// Define a interface para os itens que serão exibidos
-interface Item {
-  id: string;
-  tipoResiduo: string;
-  descricao: string;
-  quantidade: string;
-  formaDescarte: string;
-  tipoEntrega: string;
-}
-
-const Home = () => {
-  // Estado inicial com dados estáticos para visualização
-  const [items, setItems] = useState<Item[]>([
-    {
-      id: '1',
-      tipoResiduo: 'Papel',
-      descricao: 'Papéis recicláveis de escritório',
-      quantidade: '100',
-      formaDescarte: 'Reciclagem',
-      tipoEntrega: 'Troca',
-    },
-    {
-      id: '2',
-      tipoResiduo: 'Plástico',
-      descricao: 'Garrafas PET para reciclagem',
-      quantidade: '50',
-      formaDescarte: 'Descarte',
-      tipoEntrega: 'Venda',
-    },
-  ]);
-  
-  // Estado para armazenar o texto da busca
-  const [search, setSearch] = useState('');
-  // Estado para armazenar os itens filtrados com base na busca
-  const [filteredItems, setFilteredItems] = useState<Item[]>(items);
-
+export default function Home() {
   const router = useRouter();
 
-  // FUNÇÃO PARA IMPLEMENTAR A LÓGICA DE FILTRAGEM
-  // Esta função será aprimorada no futuro caso a lógica mude
+  // Todos os itens de outros usuários
+  const [items, setItems] = useState<Item[]>([]);
+  // Texto da busca
+  const [search, setSearch] = useState('');
+  // Itens filtrados para a lista
+  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+
+  // Carrega os itens de outros usuários ao montar
+  const loadItems = async () => {
+    try {
+      const others = await getItemsByOthers();
+      setItems(others);
+      setFilteredItems(others);
+    } catch (error) {
+      console.error('Erro ao carregar itens:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  // Filtra conforme o texto digitado
   const handleSearch = (text: string) => {
     setSearch(text);
     const filtered = items.filter(item =>
@@ -58,32 +51,27 @@ const Home = () => {
     setFilteredItems(filtered);
   };
 
-  // FUNÇÃO PARA IMPLEMENTAR O LOGOUT
-  // No futuro, adicione a lógica de remoção dos dados do usuário
-  const handleLogout = () => {
-    console.log('Logout realizado');
-    // Exemplo: redirecionamento para a tela de landingPage após o logout
-    router.push('/landingPage');
+  // Realiza logout real: remove sessão e volta à landing
+  const handleLogout = async () => {
+    await removeCurrentUser();
+    Alert.alert('Logout', 'Você saiu da sua conta.', [
+      { text: 'OK', onPress: () => router.push('/landingPage') },
+    ]);
   };
 
   return (
-    // CONTAINER PRINCIPAL DA HOME
     <View style={styles.container}>
       {/* ===== MENU / NAVBAR ===== */}
       <View style={styles.menuContainer}>
-        {/* Botão para navegar para a tela de "Cadastrar Itens" */}
         <TouchableOpacity onPress={() => router.push('/addItem')} style={styles.menuButton}>
           <Text style={styles.menuButtonText}>Cadastrar Itens</Text>
         </TouchableOpacity>
-        {/* Botão para navegar para a tela de "Meus Itens" */}
         <TouchableOpacity onPress={() => router.push('/myItens')} style={styles.menuButton}>
           <Text style={styles.menuButtonText}>Meus Itens</Text>
         </TouchableOpacity>
-        {/* Botão para navegar para a tela de "Dashboard Geral" */}
         <TouchableOpacity onPress={() => router.push('/dashboard')} style={styles.menuButton}>
           <Text style={styles.menuButtonText}>Dashboard Geral</Text>
         </TouchableOpacity>
-        {/* Botão de Logout */}
         <TouchableOpacity onPress={handleLogout} style={styles.menuButton}>
           <Text style={styles.menuButtonText}>Logout</Text>
         </TouchableOpacity>
@@ -104,25 +92,19 @@ const Home = () => {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              {/* TÍTULO DO CARD */}
               <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
-              {/* DESCRIÇÃO DO ITEM */}
               <Text style={styles.cardDescription}>{item.descricao}</Text>
-              {/* INFORMAÇÕES ADICIONAIS */}
               <Text style={styles.cardInfo}>Quantidade: {item.quantidade}</Text>
-              <Text style={styles.cardInfo}>Forma de Descarte: {item.formaDescarte}</Text>
-              <Text style={styles.cardInfo}>Tipo de Entrega: {item.tipoEntrega}</Text>
+              <Text style={styles.cardInfo}>Unidade: {item.unidadeMedida}</Text>
+              <Text style={styles.cardInfo}>Negociação: {item.tipoNegociacao}</Text>
             </View>
           )}
         />
       ) : (
-        // MENSAGEM PARA CASO NÃO HAJA ITENS CADASTRADOS
         <Text style={styles.emptyMessage}>
-          Nenhum item cadastrado ainda. Clique em "Cadastrar Itens" para adicionar um novo anúncio.
+          Nenhum item de outros usuários disponível. Seja o primeiro a cadastrar!
         </Text>
       )}
     </View>
   );
-};
-
-export default Home;
+}

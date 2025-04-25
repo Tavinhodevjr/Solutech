@@ -25,6 +25,11 @@ export default function Layout() {
 
       {/* Tela ds meus itens (myItens) */}
       <Stack.Screen name="myItens/index" options={{ headerShown: false }} />
+
+      <Stack.Screen name="editItens/index" options={{ headerShown: false }} />
+
+      <Stack.Screen name="debug/index" options={{ headerShown: false }} />
+
     </Stack>
   );
 }

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { styles } from './styles';
-import { authenticateUser } from '../../config/database'; // ← import da função de autenticação
+import { authenticateUser, setCurrentUser } from '../../config/database'; // ← import adicionado
 
 export default function Login() {
   const router = useRouter();
@@ -32,7 +32,10 @@ export default function Login() {
     const isValid = await authenticateUser(email, senha);
 
     if (isValid) {
-      // 3.a. Autenticação bem‑sucedida: mostra mensagem e redireciona à Home
+      // 3.a. Define o usuário logado para que possamos filtrar itens por usuário
+      await setCurrentUser(email);
+
+      // 4.a. Autenticação bem-sucedida: mostra mensagem e redireciona à Home
       Alert.alert(
         'Sucesso',
         'Login efetuado com sucesso!',
@@ -45,7 +48,7 @@ export default function Login() {
         { cancelable: false }
       );
     } else {
-      // 3.b. Credenciais inválidas: alerta de erro e permanece na tela
+      // 4.b. Credenciais inválidas: alerta de erro e permanece na tela
       Alert.alert('Erro', 'Usuário não cadastrado ou dados incorretos.');
     }
   };

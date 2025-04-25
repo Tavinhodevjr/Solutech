@@ -1,78 +1,134 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   View,
   Text,
   TextInput,
   TouchableOpacity,
+  Alert,
   Platform,
+  ActionSheetIOS,
 } from 'react-native';
-// Importa os estilos para a tela de cadastro dos itens
-import { styles } from './styles';
-// Importa o hook para navegação, caso seja necessário navegar após o cadastro
 import { useRouter } from 'expo-router';
+import { styles } from './styles';
+import { saveItem, getCurrentUser } from '../../config/database';
+import { Item } from '../../config/database';
 
 export default function AddItem() {
   const router = useRouter();
 
-  // Função para tratar o envio do formulário de cadastro dos itens
-  const handleSubmit = () => {
-    // Aqui você pode implementar a lógica para enviar os dados
-    console.log('Dados do item enviados');
+  // Estados para os campos do formulário
+  const [nome, setNome] = useState('');
+  const [unidadeMedida, setUnidadeMedida] = useState('');
+  const [quantidade, setQuantidade] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [tipoNegociacao, setTipoNegociacao] = useState('');
+
+  // Opções pré-definidas
+  const OPTIONS_UNIDADE = ['Metro (m)', 'Unidade (un)', 'Caixa (cx)', 'Cancelar'];
+  const OPTIONS_NEGOCIACAO = ['Doação', 'Venda', 'Troca', 'Cancelar'];
+
+  // Abre ActionSheet (iOS) ou Alert (Android) para seleção
+  const openOptions = (title: string, options: string[], callback: (value: string) => void) => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { title, options, cancelButtonIndex: options.length - 1 },
+        buttonIndex => {
+          if (buttonIndex < options.length - 1) {
+            callback(options[buttonIndex]);
+          }
+        }
+      );
+    } else {
+      Alert.alert(
+        title,
+        '',
+        options.map((opt, idx) => ({
+          text: opt,
+          onPress: () => { if (idx < options.length - 1) callback(opt); },
+        }))
+      );
+    }
   };
 
-  // Função de exemplo para tratar o "dropdown" (apenas um placeholder)
-  const handleSelect = (field: string) => {
-    // Implemente a lógica para abrir um modal ou selecionar a opção desejada
-    console.log(`Selecionar opção para ${field}`);
+  // Trata o envio do formulário
+  const handleSubmit = async () => {
+    // 1. Validações
+    if (!nome || !unidadeMedida || !quantidade || !descricao || !tipoNegociacao) {
+      Alert.alert('Erro', 'Preencha todos os campos.');
+      return;
+    }
+    // 2. Persiste o item associado ao usuário atual
+    try {
+      const userEmail = await getCurrentUser();
+      const newItem: Item = {
+        id: Date.now().toString(),
+        userEmail: userEmail || '',
+        tipoResiduo: nome,
+        unidadeMedida,
+        quantidade,
+        descricao,
+        tipoNegociacao,
+      };
+      await saveItem(newItem);
+      // 3. Confirmação e redirecionamento
+      Alert.alert(
+        'Sucesso',
+        'Item cadastrado!',
+        [{ text: 'OK', onPress: () => router.push('/myItens') }],
+        { cancelable: false }
+      );
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível salvar o item.');
+      console.error(error);
+    }
   };
 
   return (
-    // ScrollView com container para permitir a rolagem e centralizar o conteúdo
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Caixa que envolve todo o formulário */}
       <View style={styles.formBox}>
-        {/* Cabeçalho com o logo (neste caso, o texto "Solutech") */}
         <View style={styles.header}>
-          <Text style={styles.logo}>Solutech</Text>
+          <Text style={styles.logo}>Cadastrar Item</Text>
         </View>
 
-        {/* Container do formulário */}
         <View style={styles.formContainer}>
-          {/* Título do formulário */}
-          <Text style={styles.title}>Insira os dados</Text>
-
-          {/* Campo: Nome */}
+          {/* Nome */}
           <View style={styles.inputField}>
             <Text style={styles.label}>Nome:</Text>
             <TextInput
-              placeholder="Digite o nome"
+              placeholder="Digite o nome do resíduo"
               style={styles.input}
+              value={nome}
+              onChangeText={setNome}
             />
           </View>
 
-          {/* Campo: Unidade de medida (simulado como dropdown) */}
+          {/* Unidade de medida */}
           <View style={styles.inputField}>
             <Text style={styles.label}>Unidade de medida:</Text>
             <TouchableOpacity
               style={styles.dropdown}
-              onPress={() => handleSelect('unidade de medida')}
+              onPress={() => openOptions('Selecione unidade', OPTIONS_UNIDADE, setUnidadeMedida)}
             >
-              <Text style={styles.dropdownText}>Selecione uma opção</Text>
+              <Text style={styles.dropdownText}>
+                {unidadeMedida || 'Selecione uma opção'}
+              </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Campo: Quantidade */}
+          {/* Quantidade */}
           <View style={styles.inputField}>
             <Text style={styles.label}>Quantidade:</Text>
             <TextInput
               placeholder="Digite a quantidade"
               style={styles.input}
               keyboardType="numeric"
+              value={quantidade}
+              onChangeText={setQuantidade}
             />
           </View>
 
-          {/* Campo: Descrição */}
+          {/* Descrição */}
           <View style={styles.inputField}>
             <Text style={styles.label}>Descrição:</Text>
             <TextInput
@@ -80,28 +136,21 @@ export default function AddItem() {
               style={[styles.input, styles.textArea]}
               multiline
               numberOfLines={3}
+              value={descricao}
+              onChangeText={setDescricao}
             />
           </View>
 
-          {/* Campo: Tipo de negociação (simulado como dropdown) */}
+          {/* Tipo de negociação */}
           <View style={styles.inputField}>
             <Text style={styles.label}>Tipo de negociação:</Text>
             <TouchableOpacity
               style={styles.dropdown}
-              onPress={() => handleSelect('tipo de negociação')}
+              onPress={() => openOptions('Selecione negociação', OPTIONS_NEGOCIACAO, setTipoNegociacao)}
             >
-              <Text style={styles.dropdownText}>Selecione uma opção</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Campo: Imagem (botão para selecionar imagem) */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Coloque uma foto aqui:</Text>
-            <TouchableOpacity
-              style={styles.imageButton}
-              onPress={() => console.log('Selecionar imagem')}
-            >
-              <Text style={styles.imageButtonText}>Selecionar imagem</Text>
+              <Text style={styles.dropdownText}>
+                {tipoNegociacao || 'Selecione uma opção'}
+              </Text>
             </TouchableOpacity>
           </View>
 
