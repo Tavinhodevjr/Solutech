@@ -16,8 +16,7 @@ import {
 
 export default function MyItens() {
   const router = useRouter();
-
-  // Estado para armazenar os itens do usuário logado
+  // Estado com os itens do usuário logado
   const [items, setItems] = useState<Item[]>([]);
 
   // Carrega os itens do usuário quando a tela monta ou após exclusão
@@ -34,12 +33,12 @@ export default function MyItens() {
     loadItems();
   }, []);
 
-  // Redireciona para a tela de edição, passando o ID como parâmetro de query
+  // Navega para edição, passando o ID
   const handleEdit = (itemId: string) => {
     router.push(`/editItens?id=${itemId}`);
   };
 
-  // Exibe confirmação e exclui item se confirmado
+  // Confirmação e exclusão do item
   const handleDelete = (itemId: string) => {
     Alert.alert(
       'Confirmar Exclusão',
@@ -52,8 +51,8 @@ export default function MyItens() {
           onPress: async () => {
             try {
               await removeItemById(itemId);
-              await loadItems(); // Recarrega lista após exclusão
-            } catch (error) {
+              await loadItems();
+            } catch {
               Alert.alert('Erro', 'Não foi possível excluir o item.');
             }
           },
@@ -72,23 +71,27 @@ export default function MyItens() {
       {items.length > 0 ? (
         <FlatList
           data={items}
-          keyExtractor={(item) => item.id}
+          keyExtractor={i => i.id}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              {/* Conteúdo do Card */}
               <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
                 <Text style={styles.cardDescription}>{item.descricao}</Text>
                 <Text style={styles.cardInfo}>Quantidade: {item.quantidade}</Text>
-                <Text style={styles.cardInfo}>
-                  Unidade: {item.unidadeMedida}
-                </Text>
-                <Text style={styles.cardInfo}>
-                  Negociação: {item.tipoNegociacao}
+                <Text style={styles.cardInfo}>Unidade: {item.unidadeMedida}</Text>
+                <Text style={styles.cardInfo}>Negociação: {item.tipoNegociacao}</Text>
+                {/* Novo: badge de status */}
+                <Text
+                  style={[
+                    styles.cardStatus,
+                    item.isNegotiated
+                      ? styles.statusClosed
+                      : styles.statusOpen,
+                  ]}
+                >
+                  {item.isNegotiated ? 'Negociado' : 'Aberto'}
                 </Text>
               </View>
-
-              {/* Botões de Ação */}
               <View style={styles.cardActions}>
                 {/* Editar */}
                 <TouchableOpacity
@@ -109,7 +112,6 @@ export default function MyItens() {
           )}
         />
       ) : (
-        // Mensagem caso não haja itens cadastrados
         <Text style={styles.emptyMessage}>
           Você ainda não cadastrou nenhum item.
         </Text>

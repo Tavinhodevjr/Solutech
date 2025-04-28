@@ -1,15 +1,12 @@
 import { StyleSheet } from 'react-native';
-// Importa a paleta de cores definida em src/styles/colors.ts
 import { colors } from '../../styles/colors';
 
 export const styles = StyleSheet.create({
-  // Estilo do container principal da tela Home
   container: {
     flex: 1,
     backgroundColor: colors.background,
     padding: 20,
   },
-  // ===== Estilo do Menu / Navbar =====
   menuContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -27,7 +24,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
-  // ===== Estilo da Barra de Busca =====
   searchInput: {
     borderWidth: 1,
     borderColor: colors.neutral,
@@ -36,18 +32,21 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: colors.background,
   },
-  // ===== Estilo dos Cards dos Itens =====
   card: {
     backgroundColor: colors.neutral,
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
-    // Sombra leve para destacar o card (opcional)
+    flexDirection: 'row',           // permite alinhar conteúdo e botão lado a lado
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  cardContent: {
+    flex: 1,
   },
   cardTitle: {
     fontSize: 18,
@@ -64,7 +63,16 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
   },
-  // Mensagem para quando não houver itens cadastrados
+  negotiateButton: {
+    marginLeft: 10,
+    padding: 8,
+    backgroundColor: colors.primary,
+    borderRadius: 4,
+  },
+  negotiateText: {
+    fontSize: 18,
+    color: colors.background,
+  },
   emptyMessage: {
     textAlign: 'center',
     marginTop: 50,

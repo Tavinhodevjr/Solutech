@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const USERS_KEY = 'users';
 const ITEMS_KEY = 'items';
 const CURRENT_USER_KEY = 'current_user';
+const NEGOTIATIONS_KEY = 'negotiations';
 
 /**
  * Salva um novo usuário no AsyncStorage.
@@ -98,19 +99,36 @@ export interface Item {
   quantidade: string;
   descricao: string;
   tipoNegociacao: string;
+  isNegotiated: boolean;            
+  negotiationUserEmail?: string;  
 }
 
-/**
- * Salva um novo item no AsyncStorage.
- */
-export async function saveItem(item: Item): Promise<void> {
+/** Salva um novo item, inicializando como não negociado */
+export async function saveItem(item: Omit<Item, 'isNegotiated' | 'negotiationUserEmail'>): Promise<void> {
   try {
     const json = await AsyncStorage.getItem(ITEMS_KEY);
     const items: Item[] = json ? JSON.parse(json) : [];
-    items.push(item);
+    items.push({ ...item, isNegotiated: false });
     await AsyncStorage.setItem(ITEMS_KEY, JSON.stringify(items));
   } catch (error) {
     console.error('Erro ao salvar item:', error);
+    throw error;
+  }
+}
+
+/** Marca um item como negociado pelo usuário atual */
+export async function updateItemStatus(id: string, negotiationUserEmail: string): Promise<void> {
+  try {
+    const json = await AsyncStorage.getItem(ITEMS_KEY);
+    const items: Item[] = json ? JSON.parse(json) : [];
+    const updated = items.map(item =>
+      item.id === id
+        ? { ...item, isNegotiated: true, negotiationUserEmail }
+        : item
+    );
+    await AsyncStorage.setItem(ITEMS_KEY, JSON.stringify(updated));
+  } catch (error) {
+    console.error('Erro ao atualizar status do item:', error);
     throw error;
   }
 }
@@ -142,14 +160,13 @@ export async function getItemsByUser(): Promise<Item[]> {
   }
 }
 
-/**
- * Retorna apenas os itens cadastrados por outros usuários.
- */
+/** Itens de outros usuários e ainda NÃO negociados */
 export async function getItemsByOthers(): Promise<Item[]> {
   try {
-    const all = await getItems();
-    const currentEmail = await getCurrentUser();
-    return all.filter(item => item.userEmail !== currentEmail);
+    const json = await AsyncStorage.getItem(ITEMS_KEY);
+    const all: Item[] = json ? JSON.parse(json) : [];
+    const current = await getCurrentUser();
+    return all.filter(i => i.userEmail !== current && !i.isNegotiated);
   } catch (error) {
     console.error('Erro ao filtrar itens de outros usuários:', error);
     return [];
@@ -170,3 +187,41 @@ export async function removeItemById(id: string): Promise<void> {
   }
 }
 
+/** Salva uma negociação/interesse */
+export async function saveNegotiation(item: Item): Promise<void> {
+  try {
+    const json = await AsyncStorage.getItem(NEGOTIATIONS_KEY);
+    const deals: Item[] = json ? JSON.parse(json) : [];
+    deals.push(item);
+    await AsyncStorage.setItem(NEGOTIATIONS_KEY, JSON.stringify(deals));
+  } catch (error) {
+    console.error('Erro ao salvar negociação:', error);
+    throw error;
+  }
+}
+
+/** Itens que o usuário atual negociou */
+export async function getNegotiationsByUser(): Promise<Item[]> {
+  try {
+    const json = await AsyncStorage.getItem(ITEMS_KEY);
+    const all: Item[] = json ? JSON.parse(json) : [];
+    const current = await getCurrentUser();
+    return all.filter(i => i.negotiationUserEmail === current);
+  } catch (error) {
+    console.error('Erro ao obter negociações:', error);
+    return [];
+  }
+}
+
+/** Remove negociação por ID */
+export async function removeNegotiationById(id: string): Promise<void> {
+  try {
+    const json = await AsyncStorage.getItem(NEGOTIATIONS_KEY);
+    const deals: Item[] = json ? JSON.parse(json) : [];
+    const filtered = deals.filter(d => d.id !== id);
+    await AsyncStorage.setItem(NEGOTIATIONS_KEY, JSON.stringify(filtered));
+  } catch (error) {
+    console.error('Erro ao remover negociação:', error);
+    throw error;
+  }
+}

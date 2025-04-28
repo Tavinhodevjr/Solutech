@@ -1,3 +1,4 @@
+// src/app/negotiations/styles.ts
 import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
@@ -40,42 +41,20 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
   },
-  cardActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  actionButton: {
+  cancelButton: {
     marginLeft: 10,
     padding: 8,
     backgroundColor: colors.primary,
     borderRadius: 4,
   },
-  actionText: {
+  cancelText: {
     fontSize: 18,
-    color: colors.background,
+    color: colors.error, // cor de erro para destacá-lo
   },
   emptyMessage: {
     textAlign: 'center',
     marginTop: 50,
     fontSize: 16,
     color: colors.textSecondary,
-  },
-
-  cardStatus: {
-    marginTop: 8,
-    alignSelf: 'flex-start',
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 4,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  statusOpen: {
-    backgroundColor: colors.successLight,
-    color: colors.successDark,
-  },
-  statusClosed: {
-    backgroundColor: colors.errorLight,
-    color: colors.errorDark,
   },
 });

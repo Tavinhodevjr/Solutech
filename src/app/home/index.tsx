@@ -7,12 +7,16 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { styles } from './styles';
 import {
   getItemsByOthers,
   removeCurrentUser,
+  saveNegotiation,
+  updateItemStatus,
+  getCurrentUser,
   Item,
 } from '../../config/database';
 
@@ -59,23 +63,70 @@ export default function Home() {
     ]);
   };
 
+  // Tratar clique no botão de interesse (check)
+  const handleInterest = (item: Item) => {
+    Alert.alert(
+      'Confirmar Interesse',
+      `Deseja demonstrar interesse em "${item.tipoResiduo}"?`,
+      [
+        { text: 'Não', style: 'cancel' },
+        {
+          text: 'Sim',
+          onPress: async () => {
+            try {
+              // 1. Marca o item como negociado
+              const currentEmail = await getCurrentUser();
+              await updateItemStatus(item.id, currentEmail || '');
+              // 2. Recarrega a Home (remove o card)
+              await loadItems();
+              // 3. Vai para Minhas Negociações
+              router.push('/negotiations');
+            } catch {
+              Alert.alert('Erro', 'Não foi possível registrar o interesse.');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <View style={styles.container}>
-      {/* ===== MENU / NAVBAR ===== */}
-      <View style={styles.menuContainer}>
-        <TouchableOpacity onPress={() => router.push('/addItem')} style={styles.menuButton}>
+      {/* ===== MENU / NAVBAR HORIZONTAL ===== */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.menuContainer}
+      >
+        <TouchableOpacity
+          onPress={() => router.push('/addItem')}
+          style={styles.menuButton}
+        >
           <Text style={styles.menuButtonText}>Cadastrar Itens</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/myItens')} style={styles.menuButton}>
+        <TouchableOpacity
+          onPress={() => router.push('/myItens')}
+          style={styles.menuButton}
+        >
           <Text style={styles.menuButtonText}>Meus Itens</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/dashboard')} style={styles.menuButton}>
+        <TouchableOpacity
+          onPress={() => router.push('/dashboard')}
+          style={styles.menuButton}
+        >
           <Text style={styles.menuButtonText}>Dashboard Geral</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleLogout} style={styles.menuButton}>
-          <Text style={styles.menuButtonText}>Logout</Text>
+        <TouchableOpacity
+          onPress={() => router.push('/negotiations')}
+          style={styles.menuButton}
+        >
+          <Text style={styles.menuButtonText}>Negociações</Text>
         </TouchableOpacity>
-      </View>
+        <TouchableOpacity onPress={handleLogout} style={styles.menuButton}>
+          <Text style={styles.menuButtonText}>Sair</Text>
+        </TouchableOpacity>
+      </ScrollView>
 
       {/* ===== BARRA DE BUSCA ===== */}
       <TextInput
@@ -89,14 +140,25 @@ export default function Home() {
       {filteredItems.length > 0 ? (
         <FlatList
           data={filteredItems}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
-              <Text style={styles.cardDescription}>{item.descricao}</Text>
-              <Text style={styles.cardInfo}>Quantidade: {item.quantidade}</Text>
-              <Text style={styles.cardInfo}>Unidade: {item.unidadeMedida}</Text>
-              <Text style={styles.cardInfo}>Negociação: {item.tipoNegociacao}</Text>
+              {/* Detalhes do item */}
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
+                <Text style={styles.cardDescription}>{item.descricao}</Text>
+                <Text style={styles.cardInfo}>Quantidade: {item.quantidade}</Text>
+                <Text style={styles.cardInfo}>Unidade: {item.unidadeMedida}</Text>
+                <Text style={styles.cardInfo}>Negociação: {item.tipoNegociacao}</Text>
+              </View>
+
+              {/* Botão de interesse (check) */}
+              <TouchableOpacity
+                style={styles.negotiateButton}
+                onPress={() => handleInterest(item)}
+              >
+                <Text style={styles.negotiateText}>✔️</Text>
+              </TouchableOpacity>
             </View>
           )}
         />

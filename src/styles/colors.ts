@@ -7,5 +7,9 @@ export const colors = {
     success: '#2E7D32',       // Verde positivo
     error: '#D32F2F',         // Vermelho erro
     neutral: '#E0E0E0',       // Bordas, divisores
+    successLight: "#9fedb4",
+    errorLight: "#edb09f",
+    successDark: "#09471f",
+    errorDark: "#cc1623",       
   }
   
