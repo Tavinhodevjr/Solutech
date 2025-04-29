@@ -12,6 +12,7 @@ import {
   Item,
   getNegotiationsByUser,
   updateItemStatus,
+  revertItemStatus,
 } from '../../config/database';
 
 export default function Negotiations() {
@@ -45,10 +46,9 @@ export default function Negotiations() {
           style: 'destructive',
           onPress: async () => {
             try {
-              // Atualiza status de negociação para false
-              const current = await getNegotiationsByUser(); // para obter e-mail
-              const negotiationItem = current.find(i => i.id === itemId)!;
-              await updateItemStatus(itemId, ''); // limpa negotiationUserEmail e isNegotiated no map
+              // 1. Reverte o status do item para aberto
+              await revertItemStatus(itemId);
+              // 2. Recarrega negociações (remove o card)
               await loadNegotiations();
             } catch {
               Alert.alert('Erro', 'Não foi possível cancelar o interesse.');

@@ -1,5 +1,5 @@
 // src/app/home/index.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback,} from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { styles } from './styles';
+import { useFocusEffect } from 'expo-router';
 import {
   getItemsByOthers,
   removeCurrentUser,
@@ -40,10 +41,19 @@ export default function Home() {
       console.error('Erro ao carregar itens:', error);
     }
   };
-
+  
+  // Chama loadItems ao montar
   useEffect(() => {
     loadItems();
   }, []);
+  
+  // Recarrega quando a tela ganha foco (por exemplo, após cancelar negociação)
+  useFocusEffect(
+  useCallback(() => {
+  loadItems();
+  }, [])
+  );
+
 
   // Filtra conforme o texto digitado
   const handleSearch = (text: string) => {

@@ -133,6 +133,18 @@ export async function updateItemStatus(id: string, negotiationUserEmail: string)
   }
 }
 
+/** Reverte um item à condição “aberto” (cancelar negociação) */
+export async function revertItemStatus(id: string): Promise<void> {
+  const json = await AsyncStorage.getItem(ITEMS_KEY);
+  const items: Item[] = json ? JSON.parse(json) : [];
+  const updated = items.map(item =>
+    item.id === id
+      ? { ...item, isNegotiated: false, negotiationUserEmail: undefined }
+      : item
+  );
+  await AsyncStorage.setItem(ITEMS_KEY, JSON.stringify(updated));
+}
+
 /**
  * Retorna todos os itens cadastrados.
  */
