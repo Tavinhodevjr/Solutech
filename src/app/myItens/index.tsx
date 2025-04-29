@@ -117,5 +117,7 @@ export default function MyItens() {
         </Text>
       )}
     </View>
+       
   );
 }
+

@@ -116,6 +116,23 @@ export async function saveItem(item: Omit<Item, 'isNegotiated' | 'negotiationUse
   }
 }
 
+/**
+ * Atualiza um item existente com novos campos.
+ */
+export async function updateItem(updatedItem: Item): Promise<void> {
+  try {
+    const json = await AsyncStorage.getItem(ITEMS_KEY);
+    const items: Item[] = json ? JSON.parse(json) : [];
+    const newList = items.map(item =>
+      item.id === updatedItem.id ? updatedItem : item
+    );
+    await AsyncStorage.setItem(ITEMS_KEY, JSON.stringify(newList));
+  } catch (error) {
+    console.error('Erro ao atualizar item:', error);
+    throw error;
+  }
+}
+
 /** Marca um item como negociado pelo usuário atual */
 export async function updateItemStatus(id: string, negotiationUserEmail: string): Promise<void> {
   try {

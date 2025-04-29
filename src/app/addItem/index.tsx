@@ -69,6 +69,7 @@ export default function AddItem() {
         quantidade,
         descricao,
         tipoNegociacao,
+        isNegotiated:false, //LINHA ATENÇÃO
       };
       await saveItem(newItem);
       // 3. Confirmação e redirecionamento
