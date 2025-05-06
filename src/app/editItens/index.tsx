@@ -1,3 +1,4 @@
+// src/app/editItens/index.tsx
 import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -6,62 +7,38 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Platform,
-  ActionSheetIOS,
+  Modal,
+  FlatList,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { styles } from './styles';
-import {
-  getItemsByUser,
-  updateItem,
-  Item,
-} from '../../config/database';
+import { getItemsByUser, updateItem, Item } from '../../config/database';
 
 export default function EditItens() {
   const router = useRouter();
-  const { id } = useLocalSearchParams <{ id: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
 
-  // Estados para os campos do formulário
+  // Estados dos campos do formulário
   const [nome, setNome] = useState('');
   const [unidadeMedida, setUnidadeMedida] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [descricao, setDescricao] = useState('');
   const [tipoNegociacao, setTipoNegociacao] = useState('');
 
-  // Opções pré-definidas
-  const OPTIONS_UNIDADE = ['Metro (m)', 'Unidade (un)', 'Caixa (cx)', 'Conjunto(Cj)', 'Cancelar'];
-  const OPTIONS_NEGOCIACAO = ['Doação', 'Venda', 'Troca', 'Cancelar'];
+  // Controla qual modal está visível: 'unidade' ou 'negociacao'
+  const [modalVisible, setModalVisible] = useState<'unidade' | 'negociacao' | null>(null);
 
-  /**
-   * Abre um ActionSheet (iOS) ou Alert (Android) para seleção de opção.
-   */
-  const openOptions = (
-    title: string,
-    options: string[],
-    callback: (value: string) => void
-  ) => {
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        { title, options, cancelButtonIndex: options.length - 1 },
-        buttonIndex => {
-          if (buttonIndex < options.length - 1) {
-            callback(options[buttonIndex]);
-          }
-        }
-      );
-    } else {
-      Alert.alert(
-        title,
-        '',
-        options.map((opt, idx) => ({
-          text: opt,
-          onPress: () => {
-            if (idx < options.length - 1) callback(opt);
-          },
-        }))
-      );
-    }
-  };
+  // Opções pré-definidas
+  const OPTIONS_UNIDADE = [
+    'Quilograma (kg)',
+    'Metro (m)',
+    'Centímetro (cm)',
+    'Litro (L)',
+    'Unidade (un)',
+    'Caixa (cx)',
+  ];
+  const OPTIONS_NEGOCIACAO = ['Doação', 'Venda', 'Troca'];
 
   // Carrega o item pelo ID e pré-popula os campos
   useEffect(() => {
@@ -85,7 +62,9 @@ export default function EditItens() {
     })();
   }, [id]);
 
-  // Atualiza o item com os novos valores
+  /**
+   * Atualiza o item com os novos valores
+   */
   const handleUpdate = async () => {
     if (!nome || !unidadeMedida || !quantidade || !descricao || !tipoNegociacao) {
       return Alert.alert('Erro', 'Preencha todos os campos.');
@@ -111,82 +90,139 @@ export default function EditItens() {
     }
   };
 
+  /**
+   * Renderiza cada opção dentro do modal
+   */
+  const renderOption = (opt: string, onSelect: (val: string) => void) => (
+    <TouchableOpacity
+      key={opt}
+      style={styles.optionItem}
+      onPress={() => {
+        onSelect(opt);
+        setModalVisible(null);
+      }}
+    >
+      <Text style={styles.optionText}>{opt}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.formBox}>
-        <View style={styles.header}>
-          <Text style={styles.logo}>Editar Item</Text>
-        </View>
-        <View style={styles.formContainer}>
-          {/* Nome */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Nome:</Text>
-            <TextInput
-              style={styles.input}
-              value={nome}
-              onChangeText={setNome}
-            />
-          </View>
-
-          {/* Unidade de medida (dropdown) */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Unidade de medida:</Text>
-            <TouchableOpacity
-              style={styles.dropdown}
-              onPress={() =>
-                openOptions('Selecione unidade', OPTIONS_UNIDADE, setUnidadeMedida)
-              }
-            >
-              <Text style={styles.dropdownText}>
-                {unidadeMedida || 'Selecione uma opção'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Quantidade */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Quantidade:</Text>
-            <TextInput
-              style={styles.input}
-              value={quantidade}
-              onChangeText={setQuantidade}
-              keyboardType="numeric"
-            />
-          </View>
-
-          {/* Descrição */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Descrição:</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={descricao}
-              onChangeText={setDescricao}
-              multiline
-            />
-          </View>
-
-          {/* Tipo de negociação (dropdown) */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Tipo de negociação:</Text>
-            <TouchableOpacity
-              style={styles.dropdown}
-              onPress={() =>
-                openOptions('Selecione negociação', OPTIONS_NEGOCIACAO, setTipoNegociacao)
-              }
-            >
-              <Text style={styles.dropdownText}>
-                {tipoNegociacao || 'Selecione uma opção'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Botão para atualizar */}
-          <TouchableOpacity style={styles.button} onPress={handleUpdate}>
-            <Text style={styles.buttonText}>ATUALIZAR</Text>
+    <>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Top Bar com botões de voltar e cancelar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.topBarButton}>
+            <Text style={styles.topBarIcon}>←</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.back()} style={styles.topBarButton}>
+            <Text style={styles.topBarIcon}>✖️</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Container do formulário */}
+        <View style={styles.formBox}>
+          <Text style={styles.logo}>Editar Item</Text>
+          <View style={styles.formContainer}>
+            {/* Campo: Nome */}
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Nome:</Text>
+              <TextInput
+                style={styles.input}
+                value={nome}
+                onChangeText={setNome}
+              />
+            </View>
+
+            {/* Campo: Unidade de medida */}
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Unidade de medida:</Text>
+              <TouchableOpacity
+                style={styles.dropdown}
+                onPress={() => setModalVisible('unidade')}
+              >
+                <Text style={styles.dropdownText}>
+                  {unidadeMedida || 'Selecione uma opção'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Campo: Quantidade */}
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Quantidade:</Text>
+              <TextInput
+                style={styles.input}
+                value={quantidade}
+                onChangeText={setQuantidade}
+                keyboardType="numeric"
+              />
+            </View>
+
+            {/* Campo: Descrição */}
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Descrição:</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={descricao}
+                onChangeText={setDescricao}
+                multiline
+              />
+            </View>
+
+            {/* Campo: Tipo de negociação */}
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Tipo de negociação:</Text>
+              <TouchableOpacity
+                style={styles.dropdown}
+                onPress={() => setModalVisible('negociacao')}
+              >
+                <Text style={styles.dropdownText}>
+                  {tipoNegociacao || 'Selecione uma opção'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Botão: Atualizar informações */}
+            <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+              <Text style={styles.buttonText}>ATUALIZAR</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Modal para seleção de opções */}
+      <Modal
+        visible={modalVisible !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(null)}
+      >
+        {/* Overlay que fecha ao tocar fora */}
+        <TouchableWithoutFeedback onPress={() => setModalVisible(null)}>
+          <View style={styles.modalOverlay} />
+        </TouchableWithoutFeedback>
+
+        {/* Conteúdo do modal */}
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>
+            {modalVisible === 'unidade' ? 'Selecione a unidade:' : 'Selecione negociação:'}
+          </Text>
+          <FlatList
+            data={modalVisible === 'unidade' ? OPTIONS_UNIDADE : OPTIONS_NEGOCIACAO}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) =>
+              renderOption(
+                item,
+                modalVisible === 'unidade' ? setUnidadeMedida : setTipoNegociacao
+              )
+            }
+          />
+        </View>
+      </Modal>
+
+      {/* Bottom Bar fixa com direitos reservados */}
+      <View style={styles.bottomBar}>
+        <Text style={styles.bottomBarText}>Solutech © Todos os direitos reservados</Text>
       </View>
-      
-    </ScrollView>
+    </>
   );
 }
