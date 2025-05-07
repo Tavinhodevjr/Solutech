@@ -11,22 +11,20 @@ import { styles } from './styles';
 import {
   Item,
   getNegotiationsByUser,
-  updateItemStatus,
   revertItemStatus,
 } from '../../config/database';
 
 export default function Negotiations() {
   const router = useRouter();
-  // Estado com as negociações (itens negociados pelo usuário)
   const [items, setItems] = useState<Item[]>([]);
 
-  // Carrega negociações do usuário logado
+  // Carrega as negociações do usuário logado
   const loadNegotiations = async () => {
     try {
       const deals = await getNegotiationsByUser();
       setItems(deals);
-    } catch (error) {
-      console.error('Erro ao carregar negociações:', error);
+    } catch {
+      console.error('Erro ao carregar negociações');
     }
   };
 
@@ -46,9 +44,7 @@ export default function Negotiations() {
           style: 'destructive',
           onPress: async () => {
             try {
-              // 1. Reverte o status do item para aberto
               await revertItemStatus(itemId);
-              // 2. Recarrega negociações (remove o card)
               await loadNegotiations();
             } catch {
               Alert.alert('Erro', 'Não foi possível cancelar o interesse.');
@@ -61,38 +57,60 @@ export default function Negotiations() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Cabeçalho */}
-      <Text style={styles.header}>Minhas Negociações</Text>
+    <>
+      {/* Top bar */}
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          onPress={() => router.push('/home')}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>          Minhas Negociações</Text>
+        <View style={{ width: 60 }} />
+      </View>
 
       {/* Lista de interesses */}
-      {items.length > 0 ? (
-        <FlatList
-          data={items}
-          keyExtractor={i => i.id}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
-                <Text style={styles.cardDescription}>{item.descricao}</Text>
-                <Text style={styles.cardInfo}>Qtd: {item.quantidade}</Text>
-                <Text style={styles.cardInfo}>Unidade: {item.unidadeMedida}</Text>
-                <Text style={styles.cardInfo}>Negociação: {item.tipoNegociacao}</Text>
+      <View style={styles.container}>
+        {items.length > 0 ? (
+          <FlatList
+            data={items}
+            keyExtractor={i => i.id}
+            renderItem={({ item }) => (
+              <View style={styles.card}>
+                <View style={styles.cardContent}>
+                  <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
+                  <Text style={styles.cardDescription}>{item.descricao}</Text>
+                  <Text style={styles.cardInfo}>Qtd: {item.quantidade}</Text>
+                  <Text style={styles.cardInfo}>
+                    Unidade: {item.unidadeMedida}
+                  </Text>
+                  <Text style={styles.cardInfo}>
+                    Negociação: {item.tipoNegociacao}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => handleCancel(item.id)}
+                >
+                  <Text style={styles.cancelText}>Cancelar</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => handleCancel(item.id)}
-              >
-                <Text style={styles.cancelText}>✖️</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        />
-      ) : (
-        <Text style={styles.emptyMessage}>
-          Você ainda não demonstrou interesse em nenhum item.
+            )}
+          />
+        ) : (
+          <Text style={styles.emptyMessage}>
+            Você ainda não demonstrou interesse em nenhum item.
+          </Text>
+        )}
+      </View>
+
+      {/* Bottom bar */}
+      <View style={styles.bottomBar}>
+        <Text style={styles.bottomText}>
+          © 2025 Solutech. Todos os direitos reservados.
         </Text>
-      )}
-    </View>
+      </View>
+    </>
   );
 }
