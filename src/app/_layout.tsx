@@ -15,6 +15,7 @@ export default function Layout() {
       <Stack.Screen name="editItens/index" options={{ headerShown: false }} />
       <Stack.Screen name="debug/index" options={{ headerShown: false }} />
       <Stack.Screen name="negotiations/index" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/index" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -1,4 +1,3 @@
-// src/app/home/index.tsx
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
@@ -187,7 +186,7 @@ export default function Home() {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push('/negotiations')} style={styles.navButton}>
             <Text style={styles.navButtonText}>Negociações</Text>
-          </TouchableOpacity>
+          </TouchableOpacity>        
         </ScrollView>
       </View>
 
