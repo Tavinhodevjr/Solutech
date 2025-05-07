@@ -29,7 +29,7 @@ export default function LandingPage() {
           {/* Lista de links de navegação */}
           <View style={styles.navLinks}>
           <TouchableOpacity onPress={() => router.push('/registerPage')}>
-              <Text style={styles.navLinkText}>CONECTAR</Text>
+              <Text style={styles.navLinkText}>CADASTRE-SE</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push('/login')}>
               <Text style={styles.navLinkText}>LOGIN</Text>

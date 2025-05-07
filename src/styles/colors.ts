@@ -1,15 +1,14 @@
 export const colors = {
-    primary: '#134E4A',       // Verde escuro (base para títulos e botões)
-    secondary: '#1E88E5',     // Azul (para destaque ou ações secundárias)
-    background: '#FFFFFF',    // Fundo principal
-    textPrimary: '#1B1B1B',   // Texto principal
-    textSecondary: '#4F4F4F', // Texto secundário
-    success: '#2E7D32',       // Verde positivo
-    error: '#D32F2F',         // Vermelho erro
-    neutral: '#E0E0E0',       // Bordas, divisores
-    successLight: "#9fedb4",
-    errorLight: "#edb09f",
-    successDark: "#09471f",
-    errorDark: "#cc1623",       
-  }
-  
+  primary: '#134E4A',       // Verde escuro (base para títulos e botões)
+  secondary: '#1E88E5',     // Azul (ações secundárias e destaques)
+  background: '#FFFFFF',    // Fundo principal
+  textPrimary: '#1B1B1B',   // Texto principal escuro
+  textSecondary: '#4F4F4F', // Texto secundário
+  success: '#2E7D32',       // Verde positivo (situações de sucesso)
+  error: '#D32F2F',         // Vermelho para erros ou alertas
+  neutral: '#E0E0E0',       // Cores neutras para bordas e divisores
+  successLight: '#9FEDB4',  // Verde claro para destaques de sucesso
+  errorLight: '#EDB09F',    // Vermelho claro para destaques de erro
+  successDark: '#09471F',   // Verde escuro para contrastes de sucesso
+  errorDark: '#CC1623',     // Vermelho escuro para contrastes de erro
+};

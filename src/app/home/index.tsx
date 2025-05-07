@@ -1,182 +1,255 @@
 // src/app/home/index.tsx
-import React, { useEffect, useState, useCallback,} from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   FlatList,
-  Alert,
+  Modal,
+  TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { styles } from './styles';
-import { useFocusEffect } from 'expo-router';
 import {
   getItemsByOthers,
   removeCurrentUser,
-  saveNegotiation,
   updateItemStatus,
   getCurrentUser,
+  getUsers,
   Item,
 } from '../../config/database';
 
 export default function Home() {
   const router = useRouter();
 
-  // Todos os itens de outros usuários
+  // Listas e filtros
   const [items, setItems] = useState<Item[]>([]);
-  // Texto da busca
-  const [search, setSearch] = useState('');
-  // Itens filtrados para a lista
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState<string | null>(null);
 
-  // Carrega os itens de outros usuários ao montar
-  const loadItems = async () => {
-    try {
-      const others = await getItemsByOthers();
-      setItems(others);
-      setFilteredItems(others);
-    } catch (error) {
-      console.error('Erro ao carregar itens:', error);
-    }
-  };
-  
-  // Chama loadItems ao montar
+  // Dados do usuário
+  const [userName, setUserName] = useState('');
+  const [userCompany, setUserCompany] = useState('');
+
+  // Modais
+  const [interestModal, setInterestModal] = useState<{ visible: boolean; item?: Item }>({ visible: false });
+  const [logoutModal, setLogoutModal]     = useState(false);
+  const [filterModal, setFilterModal]     = useState(false);
+
+  const OPTIONS_NEGOCIACAO = ['Todos', 'Doação', 'Venda', 'Troca'];
+
+  // Carrega usuário logado
   useEffect(() => {
-    loadItems();
+    (async () => {
+      const email = await getCurrentUser();
+      if (!email) return;
+      const users = await getUsers();
+      const u = users.find(u => u.email === email);
+      if (u) {
+        setUserName(u.nome);
+        setUserCompany(u.empresa);
+      }
+    })();
   }, []);
-  
-  // Recarrega quando a tela ganha foco (por exemplo, após cancelar negociação)
-  useFocusEffect(
-  useCallback(() => {
-  loadItems();
-  }, [])
-  );
 
+  // Carrega itens de outros usuários não negociados
+  const loadItems = async () => {
+    const others = await getItemsByOthers();
+    setItems(others);
+    setFilteredItems(others);
+  };
+  useEffect(() => { loadItems(); }, []);
+  useFocusEffect(useCallback(() => { loadItems(); }, []));
 
-  // Filtra conforme o texto digitado
+  // Filtra por texto e tipo
+  const applyFilters = (text: string, type: string | null) => {
+    let data = items;
+    if (type && type !== 'Todos') data = data.filter(i => i.tipoNegociacao === type);
+    if (text) data = data.filter(i =>
+      i.tipoResiduo.toLowerCase().includes(text.toLowerCase()) ||
+      i.descricao.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredItems(data);
+  };
   const handleSearch = (text: string) => {
     setSearch(text);
-    const filtered = items.filter(item =>
-      item.tipoResiduo.toLowerCase().includes(text.toLowerCase()) ||
-      item.descricao.toLowerCase().includes(text.toLowerCase())
-    );
-    setFilteredItems(filtered);
+    applyFilters(text, filterType);
+  };
+  const handleFilterSelect = (type: string) => {
+    setFilterType(type === 'Todos' ? null : type);
+    applyFilters(search, type);
+    setFilterModal(false);
   };
 
-  // Realiza logout real: remove sessão e volta à landing
-  const handleLogout = async () => {
+  // Interesse no item
+  const confirmInterest = (item: Item) => {
+    setInterestModal({ visible: true, item });
+  };
+  const onInterestYes = async () => {
+    const item = interestModal.item!;
+    const email = (await getCurrentUser()) || '';
+    await updateItemStatus(item.id, email);
+    await loadItems();
+    setInterestModal({ visible: false });
+    router.push('/negotiations');
+  };
+
+  // Logout confirmado
+  const onLogout = async () => {
     await removeCurrentUser();
-    Alert.alert('Logout', 'Você saiu da sua conta.', [
-      { text: 'OK', onPress: () => router.push('/landingPage') },
-    ]);
-  };
-
-  // Tratar clique no botão de interesse (check)
-  const handleInterest = (item: Item) => {
-    Alert.alert(
-      'Confirmar Interesse',
-      `Deseja demonstrar interesse em "${item.tipoResiduo}"?`,
-      [
-        { text: 'Não', style: 'cancel' },
-        {
-          text: 'Sim',
-          onPress: async () => {
-            try {
-              // 1. Marca o item como negociado
-              const currentEmail = await getCurrentUser();
-              await updateItemStatus(item.id, currentEmail || '');
-              // 2. Recarrega a Home (remove o card)
-              await loadItems();
-              // 3. Vai para Minhas Negociações
-              router.push('/negotiations');
-            } catch {
-              Alert.alert('Erro', 'Não foi possível registrar o interesse.');
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+    router.push('/landingPage');
   };
 
   return (
-    <View style={styles.container}>
-      {/* ===== MENU / NAVBAR HORIZONTAL ===== */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.menuContainer}
-      >
-        <TouchableOpacity
-          onPress={() => router.push('/addItem')}
-          style={styles.menuButton}
-        >
-          <Text style={styles.menuButtonText}>Cadastrar Itens</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => router.push('/myItens')}
-          style={styles.menuButton}
-        >
-          <Text style={styles.menuButtonText}>Meus Itens</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => router.push('/dashboard')}
-          style={styles.menuButton}
-        >
-          <Text style={styles.menuButtonText}>Dashboard Geral</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => router.push('/negotiations')}
-          style={styles.menuButton}
-        >
-          <Text style={styles.menuButtonText}>Negociações</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleLogout} style={styles.menuButton}>
-          <Text style={styles.menuButtonText}>Sair</Text>
-        </TouchableOpacity>
-      </ScrollView>
+    <>
+      {/* ===== Top Bar ===== */}
+      <View style={styles.topBar}>
+        <View>
+          <Text style={styles.userLabel}>Usuário: {userName}</Text>
+          <Text style={styles.companyLabel}>Empresa: {userCompany}</Text>
+        </View>
+        <View style={styles.topBarActions}>
+          {/* Botão de perfil */}
+          <TouchableOpacity onPress={() => { /* navegar para perfil */ }} style={styles.topBarActionButton}>
+            <Text style={styles.topBarActionText}>Perfil</Text>
+          </TouchableOpacity>
+          {/* Botão de logout */}
+          <TouchableOpacity onPress={() => setLogoutModal(true)} style={styles.topBarActionButton}>
+            <Text style={styles.topBarActionText}>Sair</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-      {/* ===== BARRA DE BUSCA ===== */}
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Buscar anúncios..."
-        value={search}
-        onChangeText={handleSearch}
-      />
+      {/* ===== Container Principal ===== */}
+      <View style={styles.mainContainer}>
+        {/* Filtro de negociação */}
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setFilterModal(true)}
+        >
+          <Text style={styles.filterButtonText}>{filterType || 'Filtro'}</Text>
+        </TouchableOpacity>
 
-      {/* ===== LISTA DE CARDS DOS ITENS ===== */}
-      {filteredItems.length > 0 ? (
+        {/* Barra de busca */}
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar anúncios..."
+          value={search}
+          onChangeText={handleSearch}
+        />
+
+        {/* Lista de cards */}
         <FlatList
           data={filteredItems}
-          keyExtractor={item => item.id}
+          keyExtractor={i => i.id}
+          ListEmptyComponent={
+            <Text style={styles.emptyMessage}>Nenhum item disponível.</Text>
+          }
           renderItem={({ item }) => (
             <View style={styles.card}>
-              {/* Detalhes do item */}
               <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
                 <Text style={styles.cardDescription}>{item.descricao}</Text>
-                <Text style={styles.cardInfo}>Quantidade: {item.quantidade}</Text>
-                <Text style={styles.cardInfo}>Unidade: {item.unidadeMedida}</Text>
-                <Text style={styles.cardInfo}>Negociação: {item.tipoNegociacao}</Text>
+                <Text style={styles.cardInfo}>Qtd: {item.quantidade}</Text>
+                <Text style={styles.cardInfo}>Unid.: {item.unidadeMedida}</Text>
+                <Text style={styles.cardInfo}>Neg.: {item.tipoNegociacao}</Text>
               </View>
-
-              {/* Botão de interesse (check) */}
+              {/* Botão Interesse */}
               <TouchableOpacity
-                style={styles.negotiateButton}
-                onPress={() => handleInterest(item)}
+                style={styles.interestButton}
+                onPress={() => confirmInterest(item)}
               >
-                <Text style={styles.negotiateText}>✔️</Text>
+                <Text style={styles.interestButtonText}>Interesse</Text>
               </TouchableOpacity>
             </View>
           )}
         />
-      ) : (
-        <Text style={styles.emptyMessage}>
-          Nenhum item de outros usuários disponível. Seja o primeiro a cadastrar!
-        </Text>
-      )}
-    </View>
+      </View>
+
+      {/* ===== Bottom Bar ===== */}
+      <View style={styles.bottomBar}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.navContainer}
+        >
+          <TouchableOpacity onPress={() => router.push('/addItem')} style={styles.navButton}>
+            <Text style={styles.navButtonText}>Cadastrar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/myItens')} style={styles.navButton}>
+            <Text style={styles.navButtonText}>Meus Itens</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/dashboard')} style={styles.navButton}>
+            <Text style={styles.navButtonText}>Dashboard</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/negotiations')} style={styles.navButton}>
+            <Text style={styles.navButtonText}>Negociações</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+
+      {/* ===== Modais ===== */}
+      {/* Confirmar Interesse */}
+      <Modal visible={interestModal.visible} transparent animationType="fade" onRequestClose={() => setInterestModal({ visible: false })}>
+        <TouchableWithoutFeedback onPress={() => setInterestModal({ visible: false })}>
+          <View style={styles.modalOverlay}/>
+        </TouchableWithoutFeedback>
+        <View style={styles.confirmModal}>
+          <Text style={styles.confirmTitle}>Confirmar Interesse</Text>
+          <Text style={styles.confirmMessage}>
+            Deseja demonstrar interesse em "{interestModal.item?.tipoResiduo}"?
+          </Text>
+          <View style={styles.confirmButtons}>
+            <TouchableOpacity style={[styles.confirmButton, styles.cancelButton]} onPress={() => setInterestModal({ visible: false })}>
+              <Text style={styles.cancelButtonText}>Não</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.confirmButton, styles.confirmButtonMain]} onPress={onInterestYes}>
+              <Text style={styles.confirmButtonText}>Sim</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Confirmar Logout */}
+      <Modal visible={logoutModal} transparent animationType="fade" onRequestClose={() => setLogoutModal(false)}>
+        <TouchableWithoutFeedback onPress={() => setLogoutModal(false)}>
+          <View style={styles.modalOverlay}/>
+        </TouchableWithoutFeedback>
+        <View style={styles.confirmModal}>
+          <Text style={styles.confirmTitle}>Logout</Text>
+          <Text style={styles.confirmMessage}>Deseja sair da sua conta?</Text>
+          <View style={styles.confirmButtons}>
+            <TouchableOpacity style={[styles.confirmButton, styles.cancelButton]} onPress={() => setLogoutModal(false)}>
+              <Text style={styles.cancelButtonText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.confirmButton, styles.confirmButtonMain]} onPress={onLogout}>
+              <Text style={styles.confirmButtonText}>Sair</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Filtro de Negociação */}
+      <Modal visible={filterModal} transparent animationType="fade" onRequestClose={() => setFilterModal(false)}>
+        <TouchableWithoutFeedback onPress={() => setFilterModal(false)}>
+          <View style={styles.modalOverlay}/>
+        </TouchableWithoutFeedback>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Filtrar por negociação:</Text>
+          <FlatList
+            data={OPTIONS_NEGOCIACAO}
+            keyExtractor={v => v}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.optionItem} onPress={() => handleFilterSelect(item)}>
+                <Text style={styles.optionText}>{item}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </Modal>
+    </>
   );
 }
