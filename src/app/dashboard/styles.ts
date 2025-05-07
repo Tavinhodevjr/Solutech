@@ -1,62 +1,85 @@
+// src/app/dashboard/styles.ts
 import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
 export const styles = StyleSheet.create({
-  // Container principal que centraliza os elementos e define o fundo e o padding
-  container: {
-    flexGrow: 1,
-    backgroundColor: colors.background,
-    padding: 20,
+  // Top bar
+  topBar: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
-  // Cabeçalho principal da tela
-  header: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.primary,
-    marginVertical: 10,
+  backButton: {
+    padding: 8,
   },
-  // Subtítulo que exibe um resumo das atividades
-  subHeader: {
-    fontSize: 18,
-    color: colors.textSecondary,
-    marginBottom: 20,
+  backText: {
+    color: colors.background,
+    fontSize: 16,
+  },
+  title: {
+    flex: 1,
     textAlign: 'center',
+    color: colors.background,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
-  // Estilo para os cards que exibem cada métrica
+
+  // Container principal
+  container: {
+    padding: 20,
+    paddingBottom: 80, // espaço para bottombar
+    backgroundColor: colors.background,
+  },
+
+  // Cards de resumo
   card: {
     width: '100%',
     backgroundColor: colors.neutral,
-    padding: 15,
     borderRadius: 8,
-    marginVertical: 10,
+    padding: 15,
+    marginBottom: 16,
     alignItems: 'center',
   },
-  // Título de cada card (ex.: "Itens Cadastrados")
   cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
     color: colors.primary,
-    marginBottom: 5,
+    fontWeight: '600',
+    marginBottom: 4,
   },
-  // Valor exibido em cada card (ex.: "10")
   cardValue: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: colors.primary,
-  },
-  // Botão para navegação ou outra ação
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 4,
-    marginTop: 20,
-  },
-  // Texto do botão
-  buttonText: {
-    color: colors.background,
     fontWeight: 'bold',
+  },
+
+  // Título dos gráficos
+  chartTitle: {
     fontSize: 16,
+    color: colors.primary,
+    fontWeight: '600',
+    marginTop: 16,
+    alignSelf: 'center',
+  },
+  chart: {
+    marginVertical: 8,
+    borderRadius: 8,
+    alignSelf: 'center',
+  },
+
+  // Bottom bar
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    padding: 12,
+  },
+  bottomText: {
+    color: colors.background,
+    fontSize: 12,
   },
 });
