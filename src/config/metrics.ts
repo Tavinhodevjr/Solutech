@@ -1,49 +1,40 @@
-// src/config/metrics.ts
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Item } from './database';
-
-// Chaves de armazenamento
-const USERS_KEY = 'users';
-const ITEMS_KEY = 'items';
+/* src/config/metrics.ts */
+import {
+  getItemsByUser,
+  getNegotiationsByUser,
+} from './database';
 
 /**
- * Retorna o total de usuários cadastrados.
+ * Retorna o total de itens cadastrados pelo usuário logado.
  */
-export async function getTotalUsers(): Promise<number> {
-  const json = await AsyncStorage.getItem(USERS_KEY);
-  const users = json ? JSON.parse(json) : [];
-  return users.length;
-}
-
-/**
- * Retorna o total de itens cadastrados.
- */
-export async function getTotalItems(): Promise<number> {
-  const json = await AsyncStorage.getItem(ITEMS_KEY);
-  const items: Item[] = json ? JSON.parse(json) : [];
+export async function getTotalItemsByUser(): Promise<number> {
+  const items = await getItemsByUser();
   return items.length;
 }
 
 /**
- * Retorna a contagem de itens por status (aberto vs negociado).
+ * Retorna o total de negociações realizadas pelo usuário logado.
  */
-export async function getItemsCountByStatus(): Promise<{
-  open: number;
-  negotiated: number;
-}> {
-  const json = await AsyncStorage.getItem(ITEMS_KEY);
-  const items: Item[] = json ? JSON.parse(json) : [];
+export async function getTotalNegotiationsByUser(): Promise<number> {
+  const deals = await getNegotiationsByUser();
+  return deals.length;
+}
+
+/**
+ * Conta quantos itens do usuário estão abertos e quantos já foram negociados.
+ */
+export async function getItemsCountByStatus(): Promise<{ open: number; negotiated: number }> {
+  const items = await getItemsByUser();
   const open = items.filter(i => !i.isNegotiated).length;
   const negotiated = items.filter(i => i.isNegotiated).length;
   return { open, negotiated };
 }
 
 /**
- * Retorna a contagem de itens agrupados por tipo de negociação.
+ * Agrupa a quantidade de itens por tipo de negociação (Doação, Venda, Troca).
  */
 export async function getItemsCountByNegotiationType(): Promise<Record<string, number>> {
-  const json = await AsyncStorage.getItem(ITEMS_KEY);
-  const items: Item[] = json ? JSON.parse(json) : [];
+  const items = await getItemsByUser();
   const counts: Record<string, number> = {};
   items.forEach(i => {
     counts[i.tipoNegociacao] = (counts[i.tipoNegociacao] || 0) + 1;

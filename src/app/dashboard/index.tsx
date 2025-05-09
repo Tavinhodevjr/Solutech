@@ -1,4 +1,3 @@
-// src/app/dashboard/index.tsx
 import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -11,8 +10,8 @@ import { useRouter } from 'expo-router';
 import { BarChart, PieChart } from 'react-native-chart-kit';
 import { styles } from './styles';
 import {
-  getTotalUsers,
-  getTotalItems,
+  getTotalItemsByUser,
+  getTotalNegotiationsByUser,
   getItemsCountByStatus,
   getItemsCountByNegotiationType,
 } from '../../config/metrics';
@@ -22,9 +21,9 @@ export default function Dashboard() {
   const router = useRouter();
   const screenWidth = Dimensions.get('window').width - 40;
 
-  // Estados das métricas
-  const [totalUsers, setTotalUsers] = useState(0);
+  // Estados das métricas específicas do usuário logado
   const [totalItems, setTotalItems] = useState(0);
+  const [totalNegotiations, setTotalNegotiations] = useState(0);
   const [statusData, setStatusData] = useState<{ labels: string[]; data: number[] }>({
     labels: [],
     data: [],
@@ -34,18 +33,21 @@ export default function Dashboard() {
     data: [],
   });
 
-  // Carrega métricas ao montar
   useEffect(() => {
     (async () => {
-      setTotalUsers(await getTotalUsers());
-      setTotalItems(await getTotalItems());
+      // Total de itens cadastrados pelo usuário
+      setTotalItems(await getTotalItemsByUser());
+      // Total de negociações feitas pelo usuário
+      setTotalNegotiations(await getTotalNegotiationsByUser());
 
+      // Quantidade de itens por status (aberto vs negociado)
       const { open, negotiated } = await getItemsCountByStatus();
       setStatusData({
         labels: ['Aberto', 'Negociado'],
         data: [open, negotiated],
       });
 
+      // Quantidade de itens por tipo de negociação
       const typeCounts = await getItemsCountByNegotiationType();
       setNegotiationData({
         labels: Object.keys(typeCounts),
@@ -54,7 +56,7 @@ export default function Dashboard() {
     })();
   }, []);
 
-  // Configurações compartilhadas de estilo para os gráficos
+  // Configurações de aparência dos gráficos
   const chartConfig = {
     backgroundColor: colors.background,
     backgroundGradientFrom: colors.background,
@@ -67,7 +69,7 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* Top bar com seta de voltar */}
+      {/* Top bar com seta para voltar e título centralizado */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.push('/home')} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
@@ -76,59 +78,44 @@ export default function Dashboard() {
         <View style={{ width: 60 }} />
       </View>
 
-      {/* Conteúdo com rolagem */}
+      {/* Conteúdo rolável */}
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Cards de resumo */}
+        {/* Card: Total de itens do usuário */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Total de Usuários</Text>
-          <Text style={styles.cardValue}>{totalUsers}</Text>
-        </View>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Total de Itens</Text>
+          <Text style={styles.cardTitle}>Meus Itens</Text>
           <Text style={styles.cardValue}>{totalItems}</Text>
         </View>
 
-        {/* Gráfico de barras: Itens por Tipo de Negociação */}
+        {/* Card: Total de negociações do usuário */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Minhas Negociações</Text>
+          <Text style={styles.cardValue}>{totalNegotiations}</Text>
+        </View>
+
+        {/* Gráfico de barras: itens por tipo de negociação */}
         <Text style={styles.chartTitle}>Itens por Tipo de Negociação</Text>
         {negotiationData.labels.length > 0 && (
           <BarChart
             data={{
               labels: negotiationData.labels,
-              datasets: [
-                {
-                  data: negotiationData.data,
-                  color: () => colors.primary,
-                },
-              ],
+              datasets: [{ data: negotiationData.data }],
             }}
             width={screenWidth}
             height={220}
-            yAxisLabel=""           // Obrigatório para tipagem
-            yAxisSuffix=""          // Obrigatório para tipagem
+            yAxisLabel=""
+            yAxisSuffix=""
             chartConfig={chartConfig}
             style={styles.chart}
           />
         )}
 
-        {/* Gráfico de pizza: Itens por Status */}
+        {/* Gráfico de pizza: itens por status */}
         <Text style={styles.chartTitle}>Itens por Status</Text>
         {statusData.labels.length > 0 && (
           <PieChart
             data={[
-              {
-                name: 'Aberto',
-                population: statusData.data[0],
-                color: colors.successDark,
-                legendFontColor: colors.textSecondary,
-                legendFontSize: 12,
-              },
-              {
-                name: 'Negociado',
-                population: statusData.data[1],
-                color: colors.errorDark,
-                legendFontColor: colors.textSecondary,
-                legendFontSize: 12,
-              },
+              { name: 'Aberto', population: statusData.data[0], color: colors.successDark, legendFontColor: colors.textSecondary, legendFontSize: 12 },
+              { name: 'Negociado', population: statusData.data[1], color: colors.errorDark, legendFontColor: colors.textSecondary, legendFontSize: 12 },
             ]}
             width={screenWidth}
             height={200}

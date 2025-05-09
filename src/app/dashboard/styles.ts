@@ -1,4 +1,3 @@
-// src/app/dashboard/styles.ts
 import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
@@ -54,7 +53,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Título dos gráficos
+  // Títulos dos gráficos
   chartTitle: {
     fontSize: 16,
     color: colors.primary,
