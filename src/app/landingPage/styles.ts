@@ -171,6 +171,7 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 10,
     marginBottom: 10,
+    backgroundColor: colors.background,
   },
   textArea: {
     height: 100,
@@ -184,7 +185,7 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: colors.background,
     fontWeight: 'bold',
     fontSize: 16,
   },

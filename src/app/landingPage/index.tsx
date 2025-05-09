@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   View,
@@ -6,13 +6,58 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  Alert
 } from 'react-native';
+import * as MailComposer from 'expo-mail-composer';
 import { styles } from './styles';
 import { useRouter } from 'expo-router';
+
 
 // Componente funcional representando a Landing Page
 export default function LandingPage() {
   const router = useRouter();
+
+   // Estado para os campos do formulário de contato
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+
+  /**
+   * Abre o app de e-mail com um rascunho pronto para o usuário enviar.
+   */
+  const handleSendContact = async () => {
+    // 1. Validações dos campos
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      return Alert.alert('Erro', 'Por favor, preencha nome, e-mail e mensagem.');
+    }
+
+    // 2. Monta o corpo do e-mail
+    const body = 
+      `Olá ${name},\n\n` +
+      `Recebemos sua mensagem e entraremos em contato em breve!\n\n` +
+      `Você nos escreveu:\n${message}\n\n` +
+      `— Equipe Solutech`;
+
+    // 3. Composição do e-mail
+    try {
+      const result = await MailComposer.composeAsync({
+        recipients: [email],
+        subject: 'Contato Solutech ✔️',
+        body,
+      });
+      if (result.status === 'sent' || result.status === 'saved') {
+        Alert.alert('Sucesso', 'Seu e-mail foi preparado no app de mensagens.');
+        // Limpa campos após abrir o app de e-mail
+        setName('');
+        setEmail('');
+        setMessage('');
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Erro', 'Não foi possível abrir o app de e-mail.');
+    }
+  };
+
   return (
     // ScrollView para permitir a rolagem caso o conteúdo ultrapasse a altura da tela
     <ScrollView style={styles.container}>
@@ -149,27 +194,41 @@ export default function LandingPage() {
       </View>
       
       {/* ========================= Contact Section ========================= */}
-      {/* Seção de contato com um formulário simples */}
       <View style={styles.contactSection}>
         <Text style={styles.contactHeader}>Contato</Text>
         <Text style={styles.contactDescription}>
-          Entre em contato conosco para mais informações sobre nossos serviços e soluções
-          ambientais.
+          Entre em contato conosco para mais informações sobre nossos serviços e soluções ambientais.
         </Text>
+
+        {/* Formulário de contato */}
         <View style={styles.form}>
-          <TextInput style={styles.input} placeholder="Seu nome" />
+          {/* Nome */}
           <TextInput
             style={styles.input}
-            placeholder="Seu email"
-            keyboardType="email-address"
+            placeholder="Seu nome"
+            value={name}
+            onChangeText={setName}
           />
+          {/* E-mail */}
+          <TextInput
+            style={styles.input}
+            placeholder="Seu e-mail"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+          />
+          {/* Mensagem */}
           <TextInput
             style={[styles.input, styles.textArea]}
             placeholder="Sua mensagem"
             multiline
             numberOfLines={4}
+            value={message}
+            onChangeText={setMessage}
           />
-          <TouchableOpacity style={styles.button}>
+          {/* Botão Enviar abre o MailComposer */}
+          <TouchableOpacity style={styles.button} onPress={handleSendContact}>
             <Text style={styles.buttonText}>Enviar</Text>
           </TouchableOpacity>
         </View>
