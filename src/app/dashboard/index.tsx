@@ -70,7 +70,7 @@ export default function Dashboard() {
       {/* Top bar com seta de voltar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.push('/home')} style={styles.backButton}>
-          <Text style={styles.backText}>← Voltar</Text>
+          <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Dashboard</Text>
         <View style={{ width: 60 }} />

@@ -112,7 +112,7 @@ export default function Home() {
         </View>
         <View style={styles.topBarActions}>
           {/* Botão de perfil */}
-          <TouchableOpacity onPress={() => { /* navegar para perfil */ }} style={styles.topBarActionButton}>
+          <TouchableOpacity onPress={() => router.push('/profile')} style={styles.topBarActionButton}>
             <Text style={styles.topBarActionText}>Perfil</Text>
           </TouchableOpacity>
           {/* Botão de logout */}
