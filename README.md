@@ -8,17 +8,18 @@ Este app foi desenvolvido como parte de um projeto acadêmico, utilizando **Reac
 
 ## 🔧 Funcionalidades
 
-- Cadastro e login de usuários
-- Cadastro de resíduos com imagem e descrição
-- Visualização geral dos resíduos cadastrados (Home)
-- Gerenciamento dos próprios resíduos (editar/excluir)
-- Dashboard com métricas gerais (em desenvolvimento)
-- Persistência local usando SQLite
+- LandingPage para apresentação do produto e contato para dúvidas
+- Cadastro e login de usuário
+- Cadastro de itens com Imagem e Descrição
+- Visualização geral dos itens cadastrados 
+- Gerenciamento dos cadastros 
+- Dashboard com métricas gerais individuais do usuário
+- Persistência local usando AsyncStorage
 
 ## 🛠 Tecnologias Utilizadas
 
 - React Native
-- Expo
+- Expo & ExpoGO
 - TypeScript
 - AsyncStorage 
 - Expo Router
@@ -30,13 +31,12 @@ solutech-app/
 ├── assets/               # Imagens e ícones
 ├── src/
 │   ├── app/              # Telas do app
-│   ├── components/       # Componentes reutilizáveis
-│   ├── config/           # Configurações do banco de dados
+│   ├── assets/           # arquivos de imagens
+│   ├── config/           # Configuração da persistência de dados e lógica funcional
 │   ├── styles/           # Estilos globais
-│   └── utils/            # Funções auxiliares
-├── database.db           # Banco de dados local
 ├── app.json              # Configurações do Expo
-└── tsconfig.json         # Configurações TypeScript
+├── tsconfig.json         # Configurações TypeScript
+└── README.md             # Você está lendo agora
 ```
 
 ## 🚀 Como Rodar o Projeto
@@ -56,14 +56,12 @@ npm install
 npx expo start
 ```
 
-> É necessário ter o Expo Go instalado no seu celular ou usar um emulador Android/iOS.
+> É necessário ter o Expo Go instalado no seu celular ou usar um emulador Android/iOS no seu desktop
 
 ## 📊 Futuras Implementações
 
-- Filtros de busca por tipo de resíduo
-- Integração com mapas para geolocalização
-- Compartilhamento de resíduos via QR Code
-- Notificações push para novos materiais
+- Integração com mapas para geolocalização e controle de entregas
+- Integração com I.A. para análise de dados e relações empresáriais
 
 ## ✍️ Autor
 

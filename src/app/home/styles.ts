@@ -1,4 +1,3 @@
-// src/app/home/styles.ts
 import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
@@ -25,7 +24,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   topBarActionButton: {
-    backgroundColor: "#39736f",
+    backgroundColor: colors.secondary,
     marginLeft: 8,
     paddingVertical: 6,
     paddingHorizontal: 10,
@@ -45,7 +44,7 @@ export const styles = StyleSheet.create({
 
   // Filtro
   filterButton: {
-    backgroundColor: "#39736f",
+    backgroundColor: colors.secondary,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 4,
@@ -78,9 +77,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 2,
   },
-  cardContent: {
-    flex: 1,
-  },
+  cardContent: { flex: 1 },
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -114,7 +111,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Modais
+  // Modais genéricos
   modalOverlay: {
     flex: 1,
     backgroundColor: '#00000066',
@@ -128,6 +125,8 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 20,
   },
+
+  // Filtro
   modalContent: {
     position: 'absolute',
     top: '30%',
@@ -154,6 +153,8 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textPrimary,
   },
+
+  // Confirm dialogs
   confirmTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -193,6 +194,61 @@ export const styles = StyleSheet.create({
   confirmButtonText: {
     color: colors.background,
     fontWeight: 'bold',
+  },
+
+  // Detalhes do Item
+  detailModal: {
+    position: 'absolute',
+    top: '20%',
+    left: '5%',
+    right: '5%',
+    bottom: '20%',
+    backgroundColor: colors.background,
+    borderRadius: 8,
+    padding: 16,
+    elevation: 5,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  detailBack: {
+    fontSize: 20,
+    color: colors.primary,
+    marginRight: 12,
+  },
+  detailTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  detailLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    marginTop: 8,
+  },
+  detailText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.neutral,
+    marginVertical: 12,
+  },
+  emailButton: {
+    backgroundColor: colors.secondary,
+    marginTop: 16,
+    paddingVertical: 10,
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  emailButtonText: {
+    color: colors.background,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 
   // Bottom Bar

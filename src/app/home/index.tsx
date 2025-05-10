@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
+import * as MailComposer from 'expo-mail-composer';
 import { styles } from './styles';
 import {
   getItemsByOthers,
@@ -23,24 +24,27 @@ import {
 export default function Home() {
   const router = useRouter();
 
-  // Listas e filtros
+  // Lista completa e filtrada de itens
   const [items, setItems] = useState<Item[]>([]);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<string | null>(null);
 
-  // Dados do usuário
+  // Dados do usuário logado
   const [userName, setUserName] = useState('');
   const [userCompany, setUserCompany] = useState('');
 
-  // Modais
+  // Modais de confirmação
   const [interestModal, setInterestModal] = useState<{ visible: boolean; item?: Item }>({ visible: false });
   const [logoutModal, setLogoutModal]     = useState(false);
   const [filterModal, setFilterModal]     = useState(false);
 
+  // Modal de detalhe
+  const [detailModal, setDetailModal] = useState<{ visible: boolean; item?: Item; contact?: any }>({ visible: false });
+
   const OPTIONS_NEGOCIACAO = ['Todos', 'Doação', 'Venda', 'Troca'];
 
-  // Carrega usuário logado
+  /** Carrega dados do usuário logado */
   useEffect(() => {
     (async () => {
       const email = await getCurrentUser();
@@ -54,7 +58,7 @@ export default function Home() {
     })();
   }, []);
 
-  // Carrega itens de outros usuários não negociados
+  /** Carrega itens de outros usuários não negociados */
   const loadItems = async () => {
     const others = await getItemsByOthers();
     setItems(others);
@@ -63,7 +67,7 @@ export default function Home() {
   useEffect(() => { loadItems(); }, []);
   useFocusEffect(useCallback(() => { loadItems(); }, []));
 
-  // Filtra por texto e tipo
+  /** Filtra por texto e tipo */
   const applyFilters = (text: string, type: string | null) => {
     let data = items;
     if (type && type !== 'Todos') data = data.filter(i => i.tipoNegociacao === type);
@@ -83,7 +87,14 @@ export default function Home() {
     setFilterModal(false);
   };
 
-  // Interesse no item
+  /** Abre modal de detalhes, incluindo dados de contato do criador */
+  const openDetail = async (item: Item) => {
+    const users = await getUsers();
+    const contact = users.find(u => u.email === item.userEmail);
+    setDetailModal({ visible: true, item, contact });
+  };
+
+  /** Confirmação de interesse */
   const confirmInterest = (item: Item) => {
     setInterestModal({ visible: true, item });
   };
@@ -96,7 +107,19 @@ export default function Home() {
     router.push('/negotiations');
   };
 
-  // Logout confirmado
+  /** Envia e-mail usando expo-mail-composer */
+  const sendEmail = async () => {
+    const { item, contact } = detailModal;
+    const sender = await getCurrentUser();
+    if (!contact?.email || !sender) return;
+    await MailComposer.composeAsync({
+      recipients: [contact.email],
+      subject: `Interesse em ${item?.tipoResiduo}`,
+      body: `Olá ${contact.nome},\n\nSou ${userName} (${sender}). Tenho interesse no seu item "${item?.tipoResiduo}".\n\nAguardo seu retorno.\n\nAbraços,\n${userName}`,
+    });
+  };
+
+  /** Logout confirmado */
   const onLogout = async () => {
     await removeCurrentUser();
     router.push('/landingPage');
@@ -111,11 +134,9 @@ export default function Home() {
           <Text style={styles.companyLabel}>Empresa: {userCompany}</Text>
         </View>
         <View style={styles.topBarActions}>
-          {/* Botão de perfil */}
           <TouchableOpacity onPress={() => router.push('/profile')} style={styles.topBarActionButton}>
             <Text style={styles.topBarActionText}>Perfil</Text>
           </TouchableOpacity>
-          {/* Botão de logout */}
           <TouchableOpacity onPress={() => setLogoutModal(true)} style={styles.topBarActionButton}>
             <Text style={styles.topBarActionText}>Sair</Text>
           </TouchableOpacity>
@@ -124,15 +145,9 @@ export default function Home() {
 
       {/* ===== Container Principal ===== */}
       <View style={styles.mainContainer}>
-        {/* Filtro de negociação */}
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => setFilterModal(true)}
-        >
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilterModal(true)}>
           <Text style={styles.filterButtonText}>{filterType || 'Filtro'}</Text>
         </TouchableOpacity>
-
-        {/* Barra de busca */}
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar anúncios..."
@@ -140,41 +155,32 @@ export default function Home() {
           onChangeText={handleSearch}
         />
 
-        {/* Lista de cards */}
         <FlatList
           data={filteredItems}
           keyExtractor={i => i.id}
-          ListEmptyComponent={
-            <Text style={styles.emptyMessage}>Nenhum item disponível.</Text>
-          }
+          ListEmptyComponent={<Text style={styles.emptyMessage}>Nenhum item disponível.</Text>}
           renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
-                <Text style={styles.cardDescription}>{item.descricao}</Text>
-                <Text style={styles.cardInfo}>Qtd: {item.quantidade}</Text>
-                <Text style={styles.cardInfo}>Unid.: {item.unidadeMedida}</Text>
-                <Text style={styles.cardInfo}>Neg.: {item.tipoNegociacao}</Text>
+            <TouchableOpacity onPress={() => openDetail(item)} activeOpacity={0.8}>
+              <View style={styles.card}>
+                <View style={styles.cardContent}>
+                  <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
+                  <Text style={styles.cardDescription}>{item.descricao}</Text>
+                  <Text style={styles.cardInfo}>Qtd: {item.quantidade}</Text>
+                  <Text style={styles.cardInfo}>Unid.: {item.unidadeMedida}</Text>
+                  <Text style={styles.cardInfo}>Neg.: {item.tipoNegociacao}</Text>
+                </View>
+                <TouchableOpacity style={styles.interestButton} onPress={() => confirmInterest(item)}>
+                  <Text style={styles.interestButtonText}>Interesse</Text>
+                </TouchableOpacity>
               </View>
-              {/* Botão Interesse */}
-              <TouchableOpacity
-                style={styles.interestButton}
-                onPress={() => confirmInterest(item)}
-              >
-                <Text style={styles.interestButtonText}>Interesse</Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           )}
         />
       </View>
 
       {/* ===== Bottom Bar ===== */}
       <View style={styles.bottomBar}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.navContainer}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navContainer}>
           <TouchableOpacity onPress={() => router.push('/addItem')} style={styles.navButton}>
             <Text style={styles.navButtonText}>Cadastrar</Text>
           </TouchableOpacity>
@@ -191,6 +197,42 @@ export default function Home() {
       </View>
 
       {/* ===== Modais ===== */}
+
+      {/* Detalhes do Item + Contato */}
+      <Modal visible={detailModal.visible} transparent animationType="fade" onRequestClose={() => setDetailModal({ visible: false })}>
+        <TouchableWithoutFeedback onPress={() => setDetailModal({ visible: false })}>
+          <View style={styles.modalOverlay}/>
+        </TouchableWithoutFeedback>
+        <View style={styles.detailModal}>
+          <View style={styles.detailHeader}>
+            <TouchableOpacity onPress={() => setDetailModal({ visible: false })}>
+              <Text style={styles.detailBack}>←</Text>
+            </TouchableOpacity>
+            <Text style={styles.detailTitle}>Detalhes</Text>
+          </View>
+          <ScrollView>
+            <Text style={styles.detailLabel}>Item:</Text>
+            <Text style={styles.detailText}>{detailModal.item?.tipoResiduo}</Text>
+            <Text style={styles.detailLabel}>Descrição:</Text>
+            <Text style={styles.detailText}>{detailModal.item?.descricao}</Text>
+            <Text style={styles.detailLabel}>Quantidade:</Text>
+            <Text style={styles.detailText}>{detailModal.item?.quantidade}</Text>
+            <Text style={styles.detailLabel}>Unidade:</Text>
+            <Text style={styles.detailText}>{detailModal.item?.unidadeMedida}</Text>
+            <Text style={styles.detailLabel}>Negociação:</Text>
+            <Text style={styles.detailText}>{detailModal.item?.tipoNegociacao}</Text>
+            <View style={styles.divider}/>
+            <Text style={styles.detailLabel}>Contato:</Text>
+            <Text style={styles.detailText}>Nome: {detailModal.contact?.nome}</Text>
+            <Text style={styles.detailText}>E-mail: {detailModal.contact?.email}</Text>
+            <Text style={styles.detailText}>Empresa: {detailModal.contact?.empresa}</Text>
+            <TouchableOpacity style={styles.emailButton} onPress={sendEmail}>
+              <Text style={styles.emailButtonText}>Enviar E-mail</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </Modal>
+
       {/* Confirmar Interesse */}
       <Modal visible={interestModal.visible} transparent animationType="fade" onRequestClose={() => setInterestModal({ visible: false })}>
         <TouchableWithoutFeedback onPress={() => setInterestModal({ visible: false })}>
@@ -214,9 +256,7 @@ export default function Home() {
 
       {/* Confirmar Logout */}
       <Modal visible={logoutModal} transparent animationType="fade" onRequestClose={() => setLogoutModal(false)}>
-        <TouchableWithoutFeedback onPress={() => setLogoutModal(false)}>
-          <View style={styles.modalOverlay}/>
-        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={() => setLogoutModal(false)}><View style={styles.modalOverlay}/></TouchableWithoutFeedback>
         <View style={styles.confirmModal}>
           <Text style={styles.confirmTitle}>Logout</Text>
           <Text style={styles.confirmMessage}>Deseja sair da sua conta?</Text>
@@ -233,9 +273,7 @@ export default function Home() {
 
       {/* Filtro de Negociação */}
       <Modal visible={filterModal} transparent animationType="fade" onRequestClose={() => setFilterModal(false)}>
-        <TouchableWithoutFeedback onPress={() => setFilterModal(false)}>
-          <View style={styles.modalOverlay}/>
-        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={() => setFilterModal(false)}><View style={styles.modalOverlay}/></TouchableWithoutFeedback>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Filtrar por negociação:</Text>
           <FlatList
