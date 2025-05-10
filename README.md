@@ -20,8 +20,7 @@ Este app foi desenvolvido como parte de um projeto acadêmico, utilizando **Reac
 - React Native
 - Expo
 - TypeScript
-- SQLite
-- AsyncStorage (em partes do projeto)
+- AsyncStorage 
 - Expo Router
 
 ## 🗂 Estrutura do Projeto
