@@ -1,13 +1,12 @@
-// src/app/myItens/styles.ts
 import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
 export const styles = StyleSheet.create({
-  // Container da lista
   container: {
-    flex: 1,                   // ocupa 100% da altura
-  padding: 20,               // mantém o espaçamento interno
+    flexGrow: 1,
     backgroundColor: colors.background,
+    padding: 10,
+    paddingBottom: 80,
   },
 
   // Top Bar
@@ -32,15 +31,13 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.background,
   },
-  topBarSpacing: {
-    width: 28, // mantém alinhamento
-  },
 
   // Card de item
   card: {
     backgroundColor: colors.neutral,
     borderRadius: 8,
     padding: 15,
+    marginHorizontal: 20,
     marginBottom: 15,
     flexDirection: 'row',
     alignItems: 'center',
@@ -62,6 +59,8 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
   },
+
+  // Badge de status
   cardStatus: {
     marginTop: 8,
     alignSelf: 'flex-start',
@@ -74,6 +73,10 @@ export const styles = StyleSheet.create({
   statusOpen: {
     backgroundColor: colors.successLight,
     color: colors.successDark,
+  },
+  statusPending: {
+    backgroundColor: colors.secondary,
+    color: colors.background,
   },
   statusClosed: {
     backgroundColor: colors.errorLight,
@@ -91,12 +94,14 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 4,
   },
+  actionButtonDisabled: {
+    backgroundColor: colors.neutral,
+  },
   actionText: {
     fontSize: 16,
-    color: colors.background, // ícones brancos
+    color: colors.background,
   },
 
-  // Mensagem quando não há itens
   emptyMessage: {
     textAlign: 'center',
     marginTop: 50,
@@ -160,7 +165,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Bottom Bar fixa
+  // Bottom Bar
   bottomBar: {
     position: 'absolute',
     bottom: 0,

@@ -1,5 +1,4 @@
-// src/app/myItens/index.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,122 +13,188 @@ import {
   Item,
   getItemsByUser,
   removeItemById,
+  finalizeNegotiation,
 } from '../../config/database';
 
 export default function MyItens() {
   const router = useRouter();
-  // Itens do usuário logado
+
+  // Todos os itens do usuário e itens filtrados conforme status
   const [items, setItems] = useState<Item[]>([]);
+  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+
+  // Estado de filtro de status
+  const [filterStatus, setFilterStatus] = useState<'Todos' | 'Aberto' | 'Interessado' | 'Negociado'>('Todos');
+  const [filterModal, setFilterModal] = useState(false);
 
   // Estado do modal de confirmação
   const [confirmModal, setConfirmModal] = useState<{
     visible: boolean;
-    type: 'edit' | 'delete';
+    type: 'edit' | 'delete' | 'finalize';
     itemId: string | null;
   }>({ visible: false, type: 'delete', itemId: null });
 
-  // Carrega itens do AsyncStorage
-  const loadItems = async () => {
+  // Carrega todos os itens e aplica filtro
+  const loadItems = useCallback(async () => {
     const userItems = await getItemsByUser();
     setItems(userItems);
-  };
+    applyFilter(userItems, filterStatus);
+  }, [filterStatus]);
 
   useEffect(() => {
     loadItems();
-  }, []);
+  }, [loadItems]);
 
-  // Abre o modal para confirmar edição ou exclusão
-  const openConfirm = (type: 'edit' | 'delete', itemId: string) => {
-    setConfirmModal({ visible: true, type, itemId });
+  // Filtra a lista por status
+  const applyFilter = (list: Item[], status: typeof filterStatus) => {
+    let data = list;
+    if (status === 'Aberto') {
+      data = list.filter(i => !i.isNegotiated);
+    } else if (status === 'Interessado') {
+      data = list.filter(i => i.negotiationStatus === 'aguardando');
+    } else if (status === 'Negociado') {
+      data = list.filter(i => i.negotiationStatus === 'finalizado');
+    }
+    setFilteredItems(data);
   };
 
-  // Fecha o modal de confirmação
+  // Abre modal de filtro
+  const openFilter = () => setFilterModal(true);
+  const selectFilter = (status: typeof filterStatus) => {
+    setFilterStatus(status);
+    applyFilter(items, status);
+    setFilterModal(false);
+  };
+
+  // Abre o modal para confirmar ação
+  const openConfirm = (type: 'edit' | 'delete' | 'finalize', itemId: string) => {
+    setConfirmModal({ visible: true, type, itemId });
+  };
   const closeConfirm = () => {
     setConfirmModal({ visible: false, type: 'delete', itemId: null });
   };
 
-  // Executa ação ao confirmar
+  // Executa ação após confirmação
   const handleConfirm = async () => {
     const { type, itemId } = confirmModal;
     if (!itemId) return closeConfirm();
 
     if (type === 'delete') {
       await removeItemById(itemId);
-      await loadItems();
-    } else {
+    } else if (type === 'edit') {
       router.push(`/editItens?id=${itemId}`);
+    } else if (type === 'finalize') {
+      await finalizeNegotiation(itemId);
     }
+
     closeConfirm();
+    loadItems();
   };
 
-  // Botão voltar para Home
-  const handleBack = () => {
-    router.push('/home');
-  };
+  // Volta para Home
+  const handleBack = () => router.push('/home');
 
-  // Estatísticas para bottom bar
+  // Estatísticas para a bottom bar
   const total    = items.length;
   const abertos  = items.filter(i => !i.isNegotiated).length;
-  const fechados = items.filter(i => i.isNegotiated).length;
+  const aguardam = items.filter(i => i.negotiationStatus === 'aguardando').length;
+  const fechados = items.filter(i => i.negotiationStatus === 'finalizado').length;
 
   return (
     <>
-      {/* Top Bar criativa */}
+      {/* Top Bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={handleBack} style={styles.topBarButton}>
           <Text style={styles.topBarIcon}>←</Text>
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>Meus Itens</Text>
-        <View style={styles.topBarSpacing} />
+        <TouchableOpacity onPress={openFilter} style={styles.topBarButton}>
+          <Text style={styles.topBarIcon}>{filterStatus}</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Lista de cards */}
       <FlatList
         contentContainerStyle={styles.container}
-        data={items}
+        data={filteredItems}
         keyExtractor={i => i.id}
         ListEmptyComponent={
           <Text style={styles.emptyMessage}>
             Você ainda não cadastrou nenhum item.
           </Text>
         }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            {/* Conteúdo do card */}
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
-              <Text style={styles.cardDescription}>{item.descricao}</Text>
-              <Text style={styles.cardInfo}>Qtd: {item.quantidade}</Text>
-              <Text style={styles.cardInfo}>Unid.: {item.unidadeMedida}</Text>
-              <Text style={styles.cardInfo}>Neg.: {item.tipoNegociacao}</Text>
-              {/* Badge de status */}
-              <Text
-                style={[
-                  styles.cardStatus,
-                  item.isNegotiated ? styles.statusClosed : styles.statusOpen,
-                ]}
-              >
-                {item.isNegotiated ? 'Negociado' : 'Aberto'}
-              </Text>
-            </View>
+        renderItem={({ item }) => {
+          const isOpen = !item.isNegotiated && !item.negotiationStatus;
+          const isPending = item.negotiationStatus === 'aguardando';
+          const isClosed = item.negotiationStatus === 'finalizado';
 
-            {/* Ações: editar e excluir */}
-            <View style={styles.cardActions}>
-              <TouchableOpacity
-                onPress={() => openConfirm('edit', item.id)}
-                style={styles.actionButton}
-              >
-                <Text style={styles.actionText}>✏️</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => openConfirm('delete', item.id)}
-                style={styles.actionButton}
-              >
-                <Text style={styles.actionText}>🗑️</Text>
-              </TouchableOpacity>
+          return (
+            <View style={styles.card}>
+              {/* Conteúdo do card */}
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.tipoResiduo}</Text>
+                <Text style={styles.cardDescription}>{item.descricao}</Text>
+                <Text style={styles.cardInfo}>Qtd: {item.quantidade}</Text>
+                <Text style={styles.cardInfo}>Unid.: {item.unidadeMedida}</Text>
+                <Text style={styles.cardInfo}>Neg.: {item.tipoNegociacao}</Text>
+                {/* Badge de status */}
+                <Text
+                  style={[
+                    styles.cardStatus,
+                    isOpen
+                      ? styles.statusOpen
+                      : isPending
+                        ? styles.statusPending
+                        : styles.statusClosed,
+                  ]}
+                >
+                  {isOpen
+                    ? 'Aberto'
+                    : isPending
+                      ? 'Usuário interessado'
+                      : 'Negociado'}
+                </Text>
+              </View>
+
+              {/* Ações */}
+              <View style={styles.cardActions}>
+                {/* Editar */}
+                <TouchableOpacity
+                  disabled={!isOpen}
+                  onPress={() => openConfirm('edit', item.id)}
+                  style={[
+                    styles.actionButton,
+                    !isOpen && styles.actionButtonDisabled,
+                  ]}
+                >
+                  <Text style={styles.actionText}>✏️</Text>
+                </TouchableOpacity>
+                {/* Excluir */}
+                <TouchableOpacity
+                  disabled={!isOpen}
+                  onPress={() => openConfirm('delete', item.id)}
+                  style={[
+                    styles.actionButton,
+                    !isOpen && styles.actionButtonDisabled,
+                  ]}
+                >
+                  <Text style={styles.actionText}>🗑️</Text>
+                </TouchableOpacity>
+                {/* Finalizar */}
+                <TouchableOpacity
+                  disabled={!isPending}
+                  onPress={() => openConfirm('finalize', item.id)}
+                  style={[
+                    styles.actionButton,
+                    !isPending && styles.actionButtonDisabled,
+                  ]}
+                >
+                  <Text style={styles.actionText}>✅</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
+          );
+        }}
       />
 
       {/* Modal de confirmação */}
@@ -146,12 +211,16 @@ export default function MyItens() {
           <Text style={styles.confirmTitle}>
             {confirmModal.type === 'delete'
               ? 'Confirmar Exclusão'
-              : 'Confirmar Edição'}
+              : confirmModal.type === 'edit'
+                ? 'Confirmar Edição'
+                : 'Confirmar Negociação'}
           </Text>
           <Text style={styles.confirmMessage}>
             {confirmModal.type === 'delete'
               ? 'Deseja realmente excluir este item?'
-              : 'Deseja editar este item agora?'}
+              : confirmModal.type === 'edit'
+                ? 'Deseja editar este item agora?'
+                : 'Deseja finalizar esta negociação?'}
           </Text>
           <View style={styles.confirmButtons}>
             <TouchableOpacity
@@ -173,7 +242,7 @@ export default function MyItens() {
       {/* Bottom Bar com estatísticas */}
       <View style={styles.bottomBar}>
         <Text style={styles.bottomBarText}>
-          Total: {total}  •  Abertos: {abertos}  •  Fechados: {fechados}
+          Total: {total}  •  Abertos: {abertos}  •  Interessados: {aguardam}  •  Fechados: {fechados}
         </Text>
       </View>
     </>

@@ -101,6 +101,7 @@ export interface Item {
   tipoNegociacao: string;
   isNegotiated: boolean;            
   negotiationUserEmail?: string;  
+  negotiationStatus?: 'aguardando' | 'finalizado' | 'aberto';
 }
 
 /** Salva um novo item, inicializando como não negociado */
@@ -133,21 +134,24 @@ export async function updateItem(updatedItem: Item): Promise<void> {
   }
 }
 
-/** Marca um item como negociado pelo usuário atual */
-export async function updateItemStatus(id: string, negotiationUserEmail: string): Promise<void> {
-  try {
-    const json = await AsyncStorage.getItem(ITEMS_KEY);
-    const items: Item[] = json ? JSON.parse(json) : [];
-    const updated = items.map(item =>
-      item.id === id
-        ? { ...item, isNegotiated: true, negotiationUserEmail }
-        : item
-    );
-    await AsyncStorage.setItem(ITEMS_KEY, JSON.stringify(updated));
-  } catch (error) {
-    console.error('Erro ao atualizar status do item:', error);
-    throw error;
-  }
+/** Marca um item como negociado pelo usuário atual e aguardar confirmação */
+export async function updateItemStatus(
+  id: string,
+  negotiationUserEmail: string
+): Promise<void> {
+  const json = await AsyncStorage.getItem(ITEMS_KEY);
+  const items: Item[] = json ? JSON.parse(json) : [];
+  const updated = items.map(item =>
+    item.id === id
+      ? {
+          ...item,
+          isNegotiated: true,
+          negotiationUserEmail,
+          negotiationStatus: 'aguardando',   // ← mudou para status inicial
+        }
+      : item
+  );
+  await AsyncStorage.setItem(ITEMS_KEY, JSON.stringify(updated));
 }
 
 /** Reverte um item à condição “aberto” (cancelar negociação) */
@@ -156,7 +160,24 @@ export async function revertItemStatus(id: string): Promise<void> {
   const items: Item[] = json ? JSON.parse(json) : [];
   const updated = items.map(item =>
     item.id === id
-      ? { ...item, isNegotiated: false, negotiationUserEmail: undefined }
+      ? {
+          ...item,
+          isNegotiated: false,
+          negotiationUserEmail: undefined,
+          negotiationStatus: undefined,      // ← limpa o status
+        }
+      : item
+  );
+  await AsyncStorage.setItem(ITEMS_KEY, JSON.stringify(updated));
+}
+
+/** Finaliza a negociação (confirmado pelo dono do item) */
+export async function finalizeNegotiation(id: string): Promise<void> {
+  const json = await AsyncStorage.getItem(ITEMS_KEY);
+  const items: Item[] = json ? JSON.parse(json) : [];
+  const updated = items.map(item =>
+    item.id === id
+      ? { ...item, negotiationStatus: 'finalizado' }
       : item
   );
   await AsyncStorage.setItem(ITEMS_KEY, JSON.stringify(updated));
