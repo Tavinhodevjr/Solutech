@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native';
-// Importa a paleta de cores definida previamente (os caminhos são ajustados de acordo com a estrutura do projeto)
 import { colors } from '../../styles/colors';
 
 export const styles = StyleSheet.create({
@@ -8,6 +7,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+
   /* ========================= Navbar Styles ========================= */
   navbar: {
     backgroundColor: colors.background,
@@ -27,14 +27,15 @@ export const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   navLinks: {
-    flexDirection:'row',
-    alignItems: 'stretch'
+    flexDirection: 'row',
+    alignItems: 'stretch',
   },
   navLinkText: {
     marginHorizontal: 10,
     fontSize: 16,
     color: colors.textPrimary,
   },
+
   /* ========================= About Section Styles ========================= */
   aboutSection: {
     paddingVertical: 20,
@@ -48,7 +49,7 @@ export const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   blueContainer: {
-    backgroundColor: colors.primary, // Utiliza a cor principal para o fundo verde
+    backgroundColor: colors.primary,
     borderRadius: 8,
     padding: 20,
     marginVertical: 20,
@@ -57,26 +58,6 @@ export const styles = StyleSheet.create({
   blueContent: {
     alignItems: 'center',
   },
-  aboutLogo: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
-    marginBottom: 20,
-  },
-  readyText: {
-    textAlign: 'justify',
-    fontWeight: 'thin',
-    fontSize: 16,
-    color: '#FFFFFF', // Cor branca para contraste
-    marginBottom: 20,
-  },
-  wasteImage: {
-    width: 150,
-    height: 150,
-    resizeMode: 'contain',
-    marginVertical: 20,
-    borderRadius: 8
-  },
   transformText: {
     textAlign: 'center',
     fontWeight: 'bold',
@@ -84,19 +65,26 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginVertical: 20,
   },
-  aboutHeader: {
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 25,
-    color: colors.primary,
-    marginVertical: 10,
+  readyText: {
+    textAlign: 'justify',
+    fontWeight: '300',
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginBottom: 20,
+  },
+  wasteImage: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+    marginVertical: 20,
+    borderRadius: 8,
   },
   aboutDescription: {
     textAlign: 'justify',
     fontSize: 16,
     color: colors.neutral,
-    marginVertical: 0,
   },
+
   /* ========================= Services Section Styles ========================= */
   servicesSection: {
     padding: 20,
@@ -124,7 +112,7 @@ export const styles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
     marginBottom: 10,
-    borderRadius: 8
+    borderRadius: 8,
   },
   cardNumber: {
     textAlign: 'center',
@@ -145,6 +133,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
   },
+
   /* ========================= Contact Section Styles ========================= */
   contactSection: {
     padding: 20,
@@ -189,6 +178,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+
   /* ========================= Footer Section Styles ========================= */
   footer: {
     backgroundColor: colors.primary,
@@ -231,5 +221,44 @@ export const styles = StyleSheet.create({
   footerCopyright: {
     color: '#FFFFFF',
     fontSize: 12,
+  },
+
+  /* ========================= Alert Customizado ========================= */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: '#00000066',
+  },
+  alertModal: {
+    position: 'absolute',
+    top: '35%',
+    left: '10%',
+    right: '10%',
+    backgroundColor: colors.neutral,
+    borderRadius: 8,
+    padding: 20,
+    alignItems: 'center',
+  },
+  alertTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.primary,
+    marginBottom: 10,
+  },
+  alertMessage: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  alertButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 4,
+  },
+  alertButtonText: {
+    color: colors.background,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

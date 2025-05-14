@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ScrollView,
   View,
   Text,
   TextInput,
   TouchableOpacity,
   Alert,
+  ScrollView,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+
 import {
   getUserProfile,
   saveUserProfile,
+  changePassword,
   UserProfile,
 } from '../../config/userProfile';
 import { getCurrentUser, getUsers } from '../../config/database';
@@ -19,22 +22,22 @@ import { styles } from './styles';
 export default function Profile() {
   const router = useRouter();
 
-  // Estado com os dados que o usuário pode editar
   const [profile, setProfile] = useState<UserProfile>({
     nome: '',
     email: '',
     empresa: '',
     telefone: '',
+    avatarUri: undefined,
   });
-  // Cópia para comparar alterações
   const [original, setOriginal] = useState<UserProfile | null>(null);
 
-  // Carrega perfil (do storage custom ou do cadastro) ao montar
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+
+  // Carrega perfil ao montar
   useEffect(() => {
     (async () => {
-      // Tenta pegar o perfil salvo
       let stored = await getUserProfile();
-      // Se não houver, busca no banco de usuários usando o e-mail logado
       if (!stored) {
         const email = await getCurrentUser();
         if (email) {
@@ -46,6 +49,7 @@ export default function Profile() {
               email: u.email,
               empresa: u.empresa,
               telefone: u.telefone,
+              avatarUri: undefined,
             };
           }
         }
@@ -57,23 +61,34 @@ export default function Profile() {
     })();
   }, []);
 
-  // Define se algo mudou
   const isModified =
     original !== null &&
     (profile.nome !== original.nome ||
-      profile.email !== original.email ||
       profile.empresa !== original.empresa ||
-      profile.telefone !== original.telefone);
+      profile.telefone !== original.telefone ||
+      profile.avatarUri !== original.avatarUri ||
+      newPwd.length > 0);
 
-  // Salva (atualiza) perfil
+  
   const handleUpdate = async () => {
-    // Validação: nome e e-mail obrigatórios
     if (!profile.nome.trim() || !profile.email.trim()) {
       return Alert.alert('Erro', 'Nome e e-mail são obrigatórios.');
+    }
+    if (newPwd) {
+      if (newPwd !== confirmPwd) {
+        return Alert.alert('Erro', 'As senhas não coincidem.');
+      }
+      try {
+        await changePassword(profile.email, newPwd);
+      } catch {
+        return Alert.alert('Erro', 'Não foi possível atualizar a senha.');
+      }
     }
     try {
       await saveUserProfile(profile);
       setOriginal(profile);
+      setNewPwd('');
+      setConfirmPwd('');
       Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar o perfil.');
@@ -82,110 +97,101 @@ export default function Profile() {
 
   return (
     <>
-      {/* Topbar com voltar */}
       <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={() => router.push('/home')}
-          style={styles.backButton}
-        >
+        <TouchableOpacity onPress={() => router.push('/home')} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Meu Perfil</Text>
         <View style={{ width: 60 }} />
       </View>
 
-      {/* Conteúdo rolável */}
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Card de resumo */}
-        <View style={styles.card}>
-          <Text style={styles.summaryTitle}>
-            Olá, {profile.nome || 'usuário'}
-          </Text>
-          <Text style={styles.summaryText}>E-mail: {profile.email}</Text>
-          <Text style={styles.summaryText}>
-            Empresa: {profile.empresa}
-          </Text>
-          <Text style={styles.summaryText}>
-            Telefone: {profile.telefone}
-          </Text>
-        </View>
-
-        {/* Formulário editável */}
-        <View style={styles.formContainer}>
-          {/* Nome */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Nome</Text>
-            <TextInput
-              style={styles.input}
-              value={profile.nome}
-              onChangeText={nome => setProfile({ ...profile, nome })}
-              placeholder="Digite seu nome"
-            />
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          
+          {/* Resumo */}
+          <View style={styles.card}>
+            <Text style={styles.summaryTitle}>Olá, {profile.nome || 'usuário'}</Text>
+            <Text style={styles.summaryText}>E-mail: {profile.email}</Text>
+            <Text style={styles.summaryText}>Empresa: {profile.empresa}</Text>
+            <Text style={styles.summaryText}>Telefone: {profile.telefone}</Text>
           </View>
 
-          {/* E-mail */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>E-mail</Text>
-            <TextInput
-              style={styles.input}
-              value={profile.email}
-              onChangeText={email => setProfile({ ...profile, email })}
-              keyboardType="email-address"
-              placeholder="Digite seu e-mail"
-            />
-          </View>
+          {/* Formulário */}
+          <View style={styles.formContainer}>
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Nome</Text>
+              <TextInput
+                style={styles.input}
+                value={profile.nome}
+                onChangeText={nome => setProfile({ ...profile, nome })}
+                placeholder="Digite seu nome"
+              />
+            </View>
 
-          {/* Empresa */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Empresa</Text>
-            <TextInput
-              style={styles.input}
-              value={profile.empresa}
-              onChangeText={empresa => setProfile({ ...profile, empresa })}
-              placeholder="Digite o nome da empresa"
-            />
-          </View>
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Empresa</Text>
+              <TextInput
+                style={styles.input}
+                value={profile.empresa}
+                onChangeText={empresa => setProfile({ ...profile, empresa })}
+                placeholder="Digite sua empresa"
+              />
+            </View>
 
-          {/* Telefone */}
-          <View style={styles.inputField}>
-            <Text style={styles.label}>Telefone</Text>
-            <TextInput
-              style={styles.input}
-              value={profile.telefone}
-              onChangeText={telefone =>
-                setProfile({ ...profile, telefone })
-              }
-              keyboardType="phone-pad"
-              placeholder="Digite seu telefone"
-            />
-          </View>
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Telefone</Text>
+              <TextInput
+                style={styles.input}
+                value={profile.telefone}
+                onChangeText={telefone =>
+                  setProfile({ ...profile, telefone: telefone
+                    .replace(/\D/g, '')
+                    .replace(/^(\d{2})(\d)/, '($1) $2')
+                    .replace(/(\d)(\d{4})$/, '$1-$2')
+                  })
+                }
+                keyboardType="phone-pad"
+                placeholder="(11) 9 1234-5678"
+              />
+            </View>
 
-          {/* Botão Atualizar */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              !isModified && styles.buttonDisabled,
-            ]}
-            onPress={handleUpdate}
-            disabled={!isModified}
-          >
-            <Text
-              style={[
-                styles.buttonText,
-                !isModified && styles.buttonTextDisabled,
-              ]}
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Nova Senha</Text>
+              <TextInput
+                style={styles.input}
+                value={newPwd}
+                onChangeText={setNewPwd}
+                placeholder="Digite nova senha"
+                secureTextEntry
+              />
+            </View>
+
+            <View style={styles.inputField}>
+              <Text style={styles.label}>Confirmar Senha</Text>
+              <TextInput
+                style={styles.input}
+                value={confirmPwd}
+                onChangeText={setConfirmPwd}
+                placeholder="Repita a senha"
+                secureTextEntry
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, !isModified && styles.buttonDisabled]}
+              onPress={handleUpdate}
+              disabled={!isModified}
             >
-              Atualizar
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+              <Text style={[styles.buttonText, !isModified && styles.buttonTextDisabled]}>
+                Atualizar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
 
-      {/* Bottombar */}
       <View style={styles.bottomBar}>
-        <Text style={styles.bottomText}>
-          © 2025 Solutech. Todos os direitos reservados.
-        </Text>
+        <Text style={styles.bottomText}>© 2025 Solutech. Todos os direitos reservados.</Text>
       </View>
     </>
   );

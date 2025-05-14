@@ -1,11 +1,10 @@
-/* src/config/metrics.ts */
 import {
   getItemsByUser,
   getNegotiationsByUser,
 } from './database';
 
 /**
- * Retorna o total de itens cadastrados pelo usuário logado.
+ * Total de itens cadastrados pelo usuário logado.
  */
 export async function getTotalItemsByUser(): Promise<number> {
   const items = await getItemsByUser();
@@ -13,7 +12,7 @@ export async function getTotalItemsByUser(): Promise<number> {
 }
 
 /**
- * Retorna o total de negociações realizadas pelo usuário logado.
+ * Total de negociações realizadas pelo usuário logado.
  */
 export async function getTotalNegotiationsByUser(): Promise<number> {
   const deals = await getNegotiationsByUser();
@@ -21,13 +20,18 @@ export async function getTotalNegotiationsByUser(): Promise<number> {
 }
 
 /**
- * Conta quantos itens do usuário estão abertos e quantos já foram negociados.
+ * Conta quantos itens do usuário estão abertos, aguardando confirmação e finalizados.
  */
-export async function getItemsCountByStatus(): Promise<{ open: number; negotiated: number }> {
+export async function getItemsCountByStatus(): Promise<{
+  open: number;
+  pending: number;
+  finalized: number;
+}> {
   const items = await getItemsByUser();
   const open = items.filter(i => !i.isNegotiated).length;
-  const negotiated = items.filter(i => i.isNegotiated).length;
-  return { open, negotiated };
+  const pending = items.filter(i => i.negotiationStatus === 'aguardando').length;
+  const finalized = items.filter(i => i.negotiationStatus === 'finalizado').length;
+  return { open, pending, finalized };
 }
 
 /**

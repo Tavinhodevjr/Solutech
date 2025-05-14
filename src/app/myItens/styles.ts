@@ -2,11 +2,12 @@ import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
 export const styles = StyleSheet.create({
+  // Container principal da lista
   container: {
     flexGrow: 1,
     backgroundColor: colors.background,
     padding: 10,
-    paddingBottom: 80,
+    paddingBottom: 80, // espaço para bottom bar
   },
 
   // Top Bar
@@ -21,7 +22,7 @@ export const styles = StyleSheet.create({
     padding: 4,
   },
   topBarIcon: {
-    fontSize: 20,
+    fontSize: 16,
     color: colors.background,
   },
   topBarTitle: {
@@ -30,6 +31,33 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.background,
+  },
+
+  // Barra de busca + filtro
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginVertical: 8,
+  },
+  filterButton: {
+    backgroundColor: colors.secondary,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  filterButtonText: {
+    color: colors.background,
+    fontSize: 14,
+  },
+  searchInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.neutral,
+    borderRadius: 4,
+    padding: 8,
+    backgroundColor: colors.background,
   },
 
   // Card de item
@@ -75,15 +103,15 @@ export const styles = StyleSheet.create({
     color: colors.successDark,
   },
   statusPending: {
-    backgroundColor: colors.secondary,
-    color: colors.background,
+    backgroundColor: colors.alertLight,
+    color: colors.alertDark,
   },
   statusClosed: {
     backgroundColor: colors.errorLight,
     color: colors.errorDark,
   },
 
-  // Botões de ação
+  // Ações do card
   cardActions: {
     flexDirection: 'row',
     marginLeft: 10,
@@ -102,6 +130,7 @@ export const styles = StyleSheet.create({
     color: colors.background,
   },
 
+  // Mensagem de lista vazia
   emptyMessage: {
     textAlign: 'center',
     marginTop: 50,
@@ -109,12 +138,31 @@ export const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
-  // Modal overlay
+  // Overlay genérico
   modalOverlay: {
     flex: 1,
     backgroundColor: '#00000066',
   },
-  // Modal de confirmação
+
+  // Modais
+  modalContent: {
+    position: 'absolute',
+    top: '30%',
+    left: '10%',
+    right: '10%',
+    backgroundColor: colors.neutral,
+    borderRadius: 8,
+    padding: 16,
+  },
+  optionItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.background,
+  },
+  optionText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
   confirmModal: {
     position: 'absolute',
     top: '35%',
@@ -165,7 +213,62 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Bottom Bar
+  // Modal de detalhes
+  detailModal: {
+    position: 'absolute',
+    top: '20%',
+    left: '5%',
+    right: '5%',
+    bottom: '20%',
+    backgroundColor: colors.neutral,
+    borderRadius: 8,
+    padding: 16,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  detailBack: {
+    fontSize: 20,
+    color: colors.primary,
+    marginRight: 16,
+  },
+  detailTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  detailLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    marginTop: 8,
+  },
+  detailText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.neutral,
+    marginVertical: 12,
+  },
+  emailButton: {
+    marginTop: 12,
+    backgroundColor: colors.primary,
+    paddingVertical: 10,
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  emailButtonText: {
+    color: colors.background,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  // Bottom Bar com carousel
   bottomBar: {
     position: 'absolute',
     bottom: 0,
@@ -173,10 +276,22 @@ export const styles = StyleSheet.create({
     right: 0,
     backgroundColor: colors.primary,
     paddingVertical: 10,
-    alignItems: 'center',
   },
-  bottomBarText: {
+  navContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  statButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  statText: {
     color: colors.background,
     fontSize: 14,
+    fontWeight: 'bold',
   },
 });

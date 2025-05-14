@@ -114,9 +114,6 @@ export default function EditItens() {
           <TouchableOpacity onPress={() => router.back()} style={styles.topBarButton}>
             <Text style={styles.topBarIcon}>←</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.back()} style={styles.topBarButton}>
-            <Text style={styles.topBarIcon}>✖️</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Container do formulário */}

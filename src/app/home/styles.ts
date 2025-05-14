@@ -240,7 +240,7 @@ export const styles = StyleSheet.create({
   },
   emailButton: {
     backgroundColor: colors.secondary,
-    marginTop: 16,
+    marginTop: 20,
     paddingVertical: 10,
     borderRadius: 4,
     alignItems: 'center',

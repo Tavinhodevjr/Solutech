@@ -65,8 +65,8 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   badgePending: {
-    backgroundColor: colors.secondary,
-    color: colors.background,
+    backgroundColor: colors.alertLight,
+    color: colors.alertDark,
   },
   badgeFinalized: {
     backgroundColor: colors.successLight,

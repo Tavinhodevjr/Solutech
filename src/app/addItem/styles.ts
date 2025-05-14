@@ -1,18 +1,15 @@
-// src/app/addItem/styles.ts
 import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
 export const styles = StyleSheet.create({
-  // Container principal (ScrollView)
   container: {
     flexGrow: 1,
     backgroundColor: colors.background,
     padding: 20,
     alignItems: 'center',
-    paddingBottom: 80, // espaço para a bottom bar fixa
+    paddingBottom: 80,
   },
 
-  // Top Bar com voltar e cancelar
   topBar: {
     width: '100%',
     flexDirection: 'row',
@@ -27,7 +24,6 @@ export const styles = StyleSheet.create({
     color: colors.primary,
   },
 
-  // Caixa do formulário
   formBox: {
     width: '100%',
     maxWidth: 500,
@@ -47,7 +43,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // Cada campo de input
   inputField: {
     width: '100%',
     marginBottom: 15,
@@ -71,7 +66,6 @@ export const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
 
-  // Dropdown customizado
   dropdown: {
     width: '100%',
     borderWidth: 1,
@@ -86,7 +80,6 @@ export const styles = StyleSheet.create({
     color: colors.primary,
   },
 
-  // Botão de envio
   button: {
     backgroundColor: colors.primary,
     padding: 15,
@@ -101,12 +94,10 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  // Overlay semitransparente do modal
   modalOverlay: {
     flex: 1,
     backgroundColor: '#00000066',
   },
-  // Conteúdo do modal
   modalContent: {
     position: 'absolute',
     top: '30%',
@@ -134,7 +125,6 @@ export const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
 
-  // Bottom Bar fixa na parte inferior
   bottomBar: {
     position: 'absolute',
     bottom: 0,

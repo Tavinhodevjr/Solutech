@@ -21,7 +21,6 @@ export default function Dashboard() {
   const router = useRouter();
   const screenWidth = Dimensions.get('window').width - 40;
 
-  // Estados das métricas específicas do usuário logado
   const [totalItems, setTotalItems] = useState(0);
   const [totalNegotiations, setTotalNegotiations] = useState(0);
   const [statusData, setStatusData] = useState<{ labels: string[]; data: number[] }>({
@@ -35,19 +34,15 @@ export default function Dashboard() {
 
   useEffect(() => {
     (async () => {
-      // Total de itens cadastrados pelo usuário
       setTotalItems(await getTotalItemsByUser());
-      // Total de negociações feitas pelo usuário
       setTotalNegotiations(await getTotalNegotiationsByUser());
 
-      // Quantidade de itens por status (aberto vs negociado)
-      const { open, negotiated } = await getItemsCountByStatus();
+      const { open, pending, finalized } = await getItemsCountByStatus();
       setStatusData({
-        labels: ['Aberto', 'Negociado'],
-        data: [open, negotiated],
+        labels: ['Aberto', 'Aguardando', 'Finalizado'],
+        data: [open, pending, finalized],
       });
 
-      // Quantidade de itens por tipo de negociação
       const typeCounts = await getItemsCountByNegotiationType();
       setNegotiationData({
         labels: Object.keys(typeCounts),
@@ -56,7 +51,6 @@ export default function Dashboard() {
     })();
   }, []);
 
-  // Configurações de aparência dos gráficos
   const chartConfig = {
     backgroundColor: colors.background,
     backgroundGradientFrom: colors.background,
@@ -69,7 +63,7 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* Top bar com seta para voltar e título centralizado */}
+      {/* Top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.push('/home')} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
@@ -78,21 +72,18 @@ export default function Dashboard() {
         <View style={{ width: 60 }} />
       </View>
 
-      {/* Conteúdo rolável */}
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Card: Total de itens do usuário */}
+        {/* Cards de resumo */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Meus Itens</Text>
           <Text style={styles.cardValue}>{totalItems}</Text>
         </View>
-
-        {/* Card: Total de negociações do usuário */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Minhas Negociações</Text>
           <Text style={styles.cardValue}>{totalNegotiations}</Text>
         </View>
 
-        {/* Gráfico de barras: itens por tipo de negociação */}
+        {/* Gráfico de barras */}
         <Text style={styles.chartTitle}>Itens por Tipo de Negociação</Text>
         {negotiationData.labels.length > 0 && (
           <BarChart
@@ -109,13 +100,32 @@ export default function Dashboard() {
           />
         )}
 
-        {/* Gráfico de pizza: itens por status */}
+        {/* Gráfico de pizza */}
         <Text style={styles.chartTitle}>Itens por Status</Text>
         {statusData.labels.length > 0 && (
           <PieChart
             data={[
-              { name: 'Aberto', population: statusData.data[0], color: colors.successDark, legendFontColor: colors.textSecondary, legendFontSize: 12 },
-              { name: 'Negociado', population: statusData.data[1], color: colors.errorDark, legendFontColor: colors.textSecondary, legendFontSize: 12 },
+              {
+                name: 'Aberto',
+                population: statusData.data[0],
+                color: colors.successDark,
+                legendFontColor: colors.textSecondary,
+                legendFontSize: 12,
+              },
+              {
+                name: 'Aguardando',
+                population: statusData.data[1],
+                color: colors.secondary,
+                legendFontColor: colors.textSecondary,
+                legendFontSize: 12,
+              },
+              {
+                name: 'Finalizado',
+                population: statusData.data[2],
+                color: colors.errorDark,
+                legendFontColor: colors.textSecondary,
+                legendFontSize: 12,
+              },
             ]}
             width={screenWidth}
             height={200}
@@ -129,7 +139,7 @@ export default function Dashboard() {
         )}
       </ScrollView>
 
-      {/* Bottom bar fixa */}
+      {/* Bottom bar */}
       <View style={styles.bottomBar}>
         <Text style={styles.bottomText}>© 2025 Solutech. Todos os direitos reservados.</Text>
       </View>

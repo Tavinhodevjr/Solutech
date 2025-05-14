@@ -2,7 +2,6 @@ import { StyleSheet } from 'react-native';
 import { colors } from '../../styles/colors';
 
 export const styles = StyleSheet.create({
-  // Top bar
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -25,14 +24,12 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Container principal
   container: {
     padding: 20,
-    paddingBottom: 80, // espaço para bottombar
+    paddingBottom: 80,
     backgroundColor: colors.background,
   },
 
-  // Cards de resumo
   card: {
     width: '100%',
     backgroundColor: colors.neutral,
@@ -53,7 +50,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Títulos dos gráficos
   chartTitle: {
     fontSize: 16,
     color: colors.primary,
@@ -67,7 +63,6 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  // Bottom bar
   bottomBar: {
     position: 'absolute',
     bottom: 0,

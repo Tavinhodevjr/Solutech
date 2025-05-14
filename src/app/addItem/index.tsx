@@ -1,4 +1,3 @@
-// src/app/addItem/index.tsx
 import React, { useState } from 'react';
 import {
   ScrollView,
@@ -40,11 +39,17 @@ export default function AddItem() {
   const OPTIONS_NEGOCIACAO = ['Doação', 'Venda', 'Troca'];
 
   /**
-   * Função que valida e salva o item no AsyncStorage
+   * Valida e salva o item no AsyncStorage
    */
   const handleSubmit = async () => {
     if (!nome || !unidadeMedida || !quantidade || !descricao || !tipoNegociacao) {
-      return Alert.alert('Erro', 'Preencha todos os campos.');
+      Alert.alert(
+        'Erro',
+        'Por favor, preencha todos os campos.',
+        [{ text: 'OK', style: 'destructive' }],
+        { cancelable: false }
+      );
+      return;
     }
     try {
       const userEmail = await getCurrentUser();
@@ -59,11 +64,25 @@ export default function AddItem() {
         isNegotiated: false,
       };
       await saveItem(newItem);
-      Alert.alert('Sucesso', 'Item cadastrado!', [
-        { text: 'OK', onPress: () => router.push('/myItens') },
-      ]);
+      Alert.alert(
+        'Sucesso',
+        'Item cadastrado com sucesso!',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.push('/myItens'),
+            style: 'default',
+          },
+        ],
+        { cancelable: false }
+      );
     } catch {
-      Alert.alert('Erro', 'Não foi possível salvar o item.');
+      Alert.alert(
+        'Erro',
+        'Não foi possível salvar o item.',
+        [{ text: 'OK', style: 'destructive' }],
+        { cancelable: false }
+      );
     }
   };
 
@@ -86,13 +105,10 @@ export default function AddItem() {
   return (
     <>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Top Bar: botão voltar e cancelar */}
+        {/* Top Bar: botão voltar */}
         <View style={styles.topBar}>
           <TouchableOpacity onPress={() => router.back()} style={styles.topBarButton}>
             <Text style={styles.topBarIcon}>←</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.back()} style={styles.topBarButton}>
-            <Text style={styles.topBarIcon}>✖️</Text>
           </TouchableOpacity>
         </View>
 
@@ -100,7 +116,7 @@ export default function AddItem() {
         <View style={styles.formBox}>
           <Text style={styles.logo}>Cadastrar Item</Text>
           <View style={styles.formContainer}>
-            {/* Campo: Nome do resíduo */}
+            {/* Nome */}
             <View style={styles.inputField}>
               <Text style={styles.label}>Nome:</Text>
               <TextInput
@@ -111,7 +127,7 @@ export default function AddItem() {
               />
             </View>
 
-            {/* Campo: Unidade de medida */}
+            {/* Unidade */}
             <View style={styles.inputField}>
               <Text style={styles.label}>Unidade de medida:</Text>
               <TouchableOpacity
@@ -124,7 +140,7 @@ export default function AddItem() {
               </TouchableOpacity>
             </View>
 
-            {/* Campo: Quantidade */}
+            {/* Quantidade */}
             <View style={styles.inputField}>
               <Text style={styles.label}>Quantidade:</Text>
               <TextInput
@@ -136,7 +152,7 @@ export default function AddItem() {
               />
             </View>
 
-            {/* Campo: Descrição */}
+            {/* Descrição */}
             <View style={styles.inputField}>
               <Text style={styles.label}>Descrição:</Text>
               <TextInput
@@ -148,7 +164,7 @@ export default function AddItem() {
               />
             </View>
 
-            {/* Campo: Tipo de negociação */}
+            {/* Tipo de negociação */}
             <View style={styles.inputField}>
               <Text style={styles.label}>Tipo de negociação:</Text>
               <TouchableOpacity
@@ -161,7 +177,7 @@ export default function AddItem() {
               </TouchableOpacity>
             </View>
 
-            {/* Botão: Adicionar item */}
+            {/* Botão Adicionar */}
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>ADICIONAR</Text>
             </TouchableOpacity>
@@ -169,19 +185,16 @@ export default function AddItem() {
         </View>
       </ScrollView>
 
-      {/* Modal de seleção de opções */}
+      {/* Modal de seleção */}
       <Modal
         visible={modalVisible !== null}
         transparent
         animationType="fade"
         onRequestClose={() => setModalVisible(null)}
       >
-        {/* Overlay para fechar ao tocar fora */}
         <TouchableWithoutFeedback onPress={() => setModalVisible(null)}>
           <View style={styles.modalOverlay} />
         </TouchableWithoutFeedback>
-
-        {/* Conteúdo do modal */}
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>
             {modalVisible === 'unidade' ? 'Selecione a unidade:' : 'Selecione negociação:'}
@@ -199,7 +212,7 @@ export default function AddItem() {
         </View>
       </Modal>
 
-      {/* Bottom Bar fixa */}
+      {/* Bottom Bar */}
       <View style={styles.bottomBar}>
         <Text style={styles.bottomBarText}>Solutech © Todos os direitos reservados</Text>
       </View>

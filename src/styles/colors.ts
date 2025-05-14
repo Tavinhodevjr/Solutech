@@ -1,3 +1,5 @@
+import { Alert } from "react-native";
+
 export const colors = {
   primary: '#134E4A',       // Verde escuro (base para títulos e botões)
   secondary: '#39736f',     // Azul (ações secundárias e destaques)
@@ -11,4 +13,6 @@ export const colors = {
   errorLight: '#EDB09F',    // Vermelho claro para destaques de erro
   successDark: '#09471F',   // Verde escuro para contrastes de sucesso
   errorDark: '#CC1623',     // Vermelho escuro para contrastes de erro
+  alertLight: '#d6cd6b', // Amarelo claro para contrastes de alerta
+  alertDark: '#474528',  // Amarelo escuro para contrastes de alerta
 };

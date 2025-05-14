@@ -1,8 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { colors } from '../../styles/colors';
 
+const AVATAR_SIZE = 100;
+
 export const styles = StyleSheet.create({
-  // Topbar
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -20,15 +21,37 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Container principal
   container: {
-    padding: 20,
-    paddingBottom: 100, // espaço para bottombar
+    flex: 1,
     backgroundColor: colors.background,
   },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 100, // espaço para bottombar
+    alignItems: 'center',
+  },
 
-  // Card resumo
+  avatarContainer: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2,
+    backgroundColor: colors.neutral,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  avatarPlaceholder: {
+    fontSize: 40,
+    color: colors.textSecondary,
+  },
+  avatarImage: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2,
+  },
+
   card: {
+    width: Dimensions.get('window').width - 40,
     backgroundColor: colors.neutral,
     borderRadius: 8,
     padding: 16,
@@ -46,9 +69,12 @@ export const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
-  // Formulário
-  formContainer: { width: '100%' },
-  inputField: { marginBottom: 16 },
+  formContainer: {
+    width: '100%',
+  },
+  inputField: {
+    marginBottom: 16,
+  },
   label: {
     fontSize: 14,
     fontWeight: '500',
@@ -64,7 +90,6 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
 
-  // Botões
   button: {
     backgroundColor: colors.primary,
     paddingVertical: 14,
@@ -84,7 +109,6 @@ export const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
-  // Bottombar
   bottomBar: {
     position: 'absolute',
     bottom: 0,
