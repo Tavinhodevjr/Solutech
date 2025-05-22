@@ -65,8 +65,7 @@ npx expo start
 
 ## ✍️ Autor
 
-**Otávio Pampolha Bezerra**  
-Desenvolvedor Full Stack | Estudante de ADS | RA235040
+SQUADGREEN - FACENS - ESTUDANTES ADS UPX V
 ---
 
 > “Transformar para cuidar.” – Solutech
